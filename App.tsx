@@ -1,15 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+
 import SignIn from './screens/SignIn'
 import SignUp from './screens/SignUp'
 
+export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name='Login' component={SignIn}/>
+        <Stack.Screen name='Register' component={SignUp}/>
+
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 

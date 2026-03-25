@@ -1,14 +1,24 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { globalStyles } from "../styles/global";
 
-export default function App() {
+export default function LoginScreen({navigation}: any) {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+
+    const handleLogin = () => {
+        if(!email || !password){
+            Alert.alert('Virhe','Täytä kaikki kentät')
+            return
+        }
+
+        // feikki login jolla pystyy testata kirjautumisen toimintaa, tästä ohjaus main pagelle
+        navigation.replace()
+    }
   
     return (
-    <View style={styles.container}>
+    <View style={styles.container}><View style={styles.innerContainer}>
       <Text style={styles.title}>Kirjautuminen</Text>
 
       <Text style={styles.inputText}>Sähköposti</Text>
@@ -28,18 +38,19 @@ export default function App() {
         style={styles.input}
       />
 
-      <TouchableOpacity style={globalStyles.button}>
+      <TouchableOpacity style={globalStyles.button} onPress={handleLogin}>
         <Text style={globalStyles.buttonText}>Kirjaudu</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.userText} onPress={() => console.log("Rekisteröitymiseen")}>
+      <TouchableOpacity style={styles.userText} onPress={() => navigation.replace("Register")}>
         <Text>Oletko uusi käyttäjä?{" "}
             <Text style={styles.clickableText}>Rekisteröidy</Text>
         </Text>
       </TouchableOpacity>
 
       <StatusBar style="auto" />
-    </View>
+    
+    </View></View>
   );
 }
 
@@ -48,6 +59,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     justifyContent: 'center',
+    alignItems: 'center'
+  },
+  innerContainer:{
     width: '60%'
   },
   title: {
