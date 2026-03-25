@@ -3,17 +3,18 @@ import { useLayoutEffect } from "react";
 import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import NavBarBottom, { RootStackParamList } from "../components/NavBarBottom";
+import { RootStackParamList } from "../components/NavBarBottom";
+import NavBarBottom from "../components/NavBarBottom";
 
-type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
+type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 
-export default function QRScanner({navigation}: QRScannerProps) {
+export default function Home({navigation}: HomeProps) {
 /*
     useLayoutEffect(() => {
         navigation.setOptions({ 
             headerStyle: { backgroundColor: 'lightblue' },
             headerTitleStyle: { fontWeight: 'bold' },
-            title: 'Events',
+            title: 'Home',
             headerRight: () => (
                 <Ionicons 
                     name="arrow-forward"

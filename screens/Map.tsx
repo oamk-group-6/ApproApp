@@ -3,7 +3,8 @@ import { useLayoutEffect } from "react";
 import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../components/NavBarBottom";
+import NavBarTop, { RootStackParamList } from "../components/NavBarBottom";
+import NavBarBottom from "../components/NavBarBottom";
 
 type MapProps = NativeStackScreenProps<RootStackParamList, 'Map'>
 
@@ -31,6 +32,8 @@ export default function Map({navigation}: MapProps) {
         <View style={styles.container}>
             <Text>Map</Text>
             <StatusBar style="auto" />
+            <NavBarTop />
+            <NavBarBottom />
         </View>
     );
 }
