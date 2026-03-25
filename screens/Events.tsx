@@ -3,12 +3,12 @@ import { useLayoutEffect } from "react";
 import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../App";
+import { RootStackParamList } from "../components/NavBarBottom";
 
 type EventsProps = NativeStackScreenProps<RootStackParamList, 'Events'>
 
 export default function Events({navigation}: EventsProps) {
-
+/*
     useLayoutEffect(() => {
         navigation.setOptions({ 
             headerStyle: { backgroundColor: 'lightblue' },
@@ -20,11 +20,12 @@ export default function Events({navigation}: EventsProps) {
                     size={24}
                     color="black"
                     style={{ marginRight: 15 }}
-                    onPress={() => navigation.navigate('Details', {message: 'privet'})}
+                    onPress={() => navigation.navigate('Details')}
                 />
             ),
         })
     }, []);
+*/
     return (
         <View style={styles.container}>
             <Text>Events</Text>
