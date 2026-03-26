@@ -46,7 +46,7 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
     if (!permission.granted) {
         return (
             <View style={styles.container}>
-                <Text>Tarvitsee luvan kameran käyttöön</Text>
+                <Text style={[globalStyles.text]}>Tarvitsee luvan kameran käyttöön</Text>
                 <TouchableOpacity
                     style={[globalStyles.button]}
                     onPress={requestPermission}
