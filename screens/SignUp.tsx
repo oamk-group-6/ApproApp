@@ -2,20 +2,31 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { globalStyles } from "../styles/global";
+import { registerUser } from '../firebase/services/authService';
 
 export default function RegisterScreen({navigation}: any) {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [loading, setLoading] = useState(false);
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if(!email || !password){
             Alert.alert('Virhe','Täytä kaikki kentät')
             return
         }
-
-        //Jos rekisteröityminen onnistuu, navigoidaan login screeniin
-        navigation.replace("Login")
-    }
+        
+        setLoading(true);
+        try {
+          await registerUser(email, password)
+          Alert.alert('Onnistui', 'Käyttäjä luoto onnistuneesti!')
+          navigation.replace("Login")
+        } catch (error: any) {
+          console.error(error);
+          Alert.alert('Virhe', error.message || 'Rekisteröityminen epäonnistui');
+        } finally {
+          setLoading(false);
+        }
+    };
 
     return (
     <View style={styles.container}><View style={styles.innerContainer}>

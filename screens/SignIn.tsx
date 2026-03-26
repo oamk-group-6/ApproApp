@@ -2,20 +2,30 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { globalStyles } from "../styles/global";
+import { loginUser } from '../firebase/services/authService';
+
 
 export default function LoginScreen({navigation}: any) {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = () => {
-        if(!email || !password){
-            Alert.alert('Virhe','Täytä kaikki kentät')
-            return
+    const handleLogin = async () => {
+        if (!email || !password) {
+          Alert.alert('Virhe', 'Täytä kaikki kentät');
+          return;
         }
 
-        // feikki login jolla pystyy testata kirjautumisen toimintaa, tästä ohjaus main pagelle
-        navigation.replace()
-    }
+        setLoading(true);
+        try {
+          await loginUser(email, password);
+        } catch (error: any) {
+          console.error(error);
+          Alert.alert('Virhe', error.message || 'Kirjautuminen epäonnistui');
+        } finally {
+          setLoading(false);
+        }
+      };
   
     return (
     <View style={styles.container}><View style={styles.innerContainer}>
