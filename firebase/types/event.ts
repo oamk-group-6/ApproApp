@@ -8,3 +8,5 @@ export interface Event {
     location: string
     status: 'tuleva' | 'nykyinen' | 'mennyt'
 }
+
+export type CreateEvent = Omit<Event, "id">;
