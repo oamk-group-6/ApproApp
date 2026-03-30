@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b67cb77c-01db-4a85-b272-6504cc8b96cd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firebase/services/eventService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/firebase/services/eventService.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firebase/types/event.ts" beforeDir="false" afterPath="$PROJECT_DIR$/firebase/types/event.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

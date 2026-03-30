@@ -10,11 +10,9 @@ import {
 
 import { logoutUser } from "../firebase/services/authService";
 import { addEvent } from "../firebase/services/eventService";
-import { useUserRole } from "../firebase/hooks/useUserRole";
+import AdminOnly from "./AdminOnly";
 
 export default function HomeScreen() {
-  const { isAdmin, loading } = useUserRole();
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
@@ -49,54 +47,43 @@ export default function HomeScreen() {
       Alert.alert("Error", "Failed to create event");
     }
   };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Test Create Event</Text>
 
-      {isAdmin ? (
-        <>
-          <TextInput
-            placeholder="Title"
-            style={styles.input}
-            value={title}
-            onChangeText={setTitle}
-          />
+      <AdminOnly>
+      <>
+        <TextInput
+          placeholder="Title"
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
+        />
 
-          <TextInput
-            placeholder="Description"
-            style={styles.input}
-            value={description}
-            onChangeText={setDescription}
-          />
+        <TextInput
+          placeholder="Description"
+          style={styles.input}
+          value={description}
+          onChangeText={setDescription}
+        />
 
-          <TextInput
-            placeholder="Date"
-            style={styles.input}
-            value={date}
-            onChangeText={setDate}
-          />
+        <TextInput
+          placeholder="Date"
+          style={styles.input}
+          value={date}
+          onChangeText={setDate}
+        />
 
-          <TextInput
-            placeholder="Location"
-            style={styles.input}
-            value={location}
-            onChangeText={setLocation}
-          />
+        <TextInput
+          placeholder="Location"
+          style={styles.input}
+          value={location}
+          onChangeText={setLocation}
+        />
 
-          <Button title="Add Event" onPress={handleAddEvent} />
-        </>
-      ) : (
-        <Text>You do not have admin access</Text>
-      )}
+        <Button title="Add Event" onPress={handleAddEvent} />
+      </>
+      </AdminOnly>
 
       <View style={{ marginTop: 20 }}>
         <Button title="Logout" onPress={handleLogout} />
