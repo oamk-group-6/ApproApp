@@ -1,21 +1,57 @@
+import { useAuth } from './firebase/hooks/useAuth';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import NavBarBottom from './components/NavBarBottom';
+import QRScanner from './screens/QRScanner';
+
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+
+import SignIn from './screens/SignIn'
+import SignUp from './screens/SignUp'
+
+import HomeScreen from './screens/HomeScreen';
+
+export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  Home: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {user ? (
+          <Stack.Screen name="Home" component={HomeScreen} />
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={SignIn} />
+            <Stack.Screen name="Register" component={SignUp} />
+          </>
+        )}
+      </Stack.Navigator>
+
       <StatusBar style="auto" />
-      <NavBarBottom />
-    </View>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  loadingContainer: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
