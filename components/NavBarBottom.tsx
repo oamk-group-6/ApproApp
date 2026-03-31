@@ -5,28 +5,19 @@ import Map from "../screens/Map";
 import Passi from "../screens/Passi";
 import QRScanner from "../screens/QRScanner";
 import Home from "../screens/Home";
+import { RootStackParamList } from "../App";
+import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-export type RootStackParamList = {
-  Events: undefined
-  Map: undefined
-  Passi: undefined
-  QRScanner: undefined
-    Home: undefined
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>()
+const Tab = createBottomTabNavigator<RootStackParamList>();
 
 export default function NavBarBottom() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Events">
-        <Stack.Screen name="Events" component={Events} />
-        <Stack.Screen name="Map" component={Map} />
-        <Stack.Screen name="Passi" component={Passi} />
-        {/* <Stack.Screen name="QRScanner" component={QRScanner} /> */}
-        <Stack.Screen name="Home" component={Home} />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <Tab.Navigator initialRouteName="Events">
+        <Tab.Screen name="Events" component={Events} />
+        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Map" component={Map} />        
+      </Tab.Navigator>
     );
 }
 

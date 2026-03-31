@@ -3,7 +3,7 @@ import { useLayoutEffect } from "react";
 import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../components/NavBarBottom";
+import { RootStackParamList } from "../App";
 import NavBarBottom from "../components/NavBarBottom";
 
 type EventsProps = NativeStackScreenProps<RootStackParamList, 'Events'>
@@ -31,7 +31,6 @@ export default function Events({navigation}: EventsProps) {
         <View style={styles.container}>
             <Text>Events</Text>
             <StatusBar style="auto" />
-            <NavBarBottom />
         </View>
     );
 }
