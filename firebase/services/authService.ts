@@ -26,6 +26,7 @@ export const registerUser = async (email: string, password: string) => {
     uid: firebaseUser.uid,
     email: firebaseUser.email || "",
     createdAt: new Date(),
+    role: "basic"
   };
 
   await setDoc(doc(db, "users", firebaseUser.uid), userData);
