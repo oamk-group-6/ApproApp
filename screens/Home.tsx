@@ -3,36 +3,34 @@ import { useLayoutEffect } from "react";
 import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import NavBarTop, { RootStackParamList } from "../components/NavBarBottom";
+import { RootStackParamList } from "../components/NavBarBottom";
 import NavBarBottom from "../components/NavBarBottom";
 
-type MapProps = NativeStackScreenProps<RootStackParamList, 'Map'>
+type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 
-export default function Map({navigation}: MapProps) {
-
-    /*
+export default function Home({navigation}: HomeProps) {
+/*
     useLayoutEffect(() => {
         navigation.setOptions({ 
             headerStyle: { backgroundColor: 'lightblue' },
             headerTitleStyle: { fontWeight: 'bold' },
-            title: 'Map',
+            title: 'Home',
             headerRight: () => (
                 <Ionicons 
                     name="arrow-forward"
                     size={24}
                     color="black"
                     style={{ marginRight: 15 }}
-                    onPress={() => navigation.navigate('Details', {message: 'privet'})}
+                    onPress={() => navigation.navigate('Details')}
                 />
             ),
         })
     }, []);
-    */
+*/
     return (
         <View style={styles.container}>
-            <Text>Map</Text>
+            <Text>Events</Text>
             <StatusBar style="auto" />
-            <NavBarTop />
             <NavBarBottom />
         </View>
     );
