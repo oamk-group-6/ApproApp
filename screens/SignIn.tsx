@@ -8,14 +8,14 @@ import { loginUser } from '../firebase/services/authService';
 export default function LoginScreen({navigation}: any) {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleLogin = async () => {
         if (!email || !password) {
           Alert.alert('Virhe', 'Täytä kaikki kentät');
           return;
         }
-
+        
         setLoading(true);
         try {
           await loginUser(email, password);

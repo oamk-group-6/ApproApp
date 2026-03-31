@@ -4,12 +4,12 @@ import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../App";
-import NavBarBottom from "../components/NavBarBottom";
+import QRScanner from "./QRScanner";
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 
 export default function Home({navigation}: HomeProps) {
-/*
+
     useLayoutEffect(() => {
         navigation.setOptions({ 
             headerStyle: { backgroundColor: 'lightblue' },
@@ -21,15 +21,15 @@ export default function Home({navigation}: HomeProps) {
                     size={24}
                     color="black"
                     style={{ marginRight: 15 }}
-                    onPress={() => navigation.navigate('Details')}
+                    onPress={() => navigation.navigate('QRScanner')}
                 />
             ),
         })
     }, []);
-*/
+
     return (
         <View style={styles.container}>
-            <Text>Events</Text>
+            <Text>Home</Text>
             <StatusBar style="auto" />
         </View>
     );
