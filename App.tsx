@@ -11,11 +11,23 @@ import SignIn from './screens/SignIn'
 import SignUp from './screens/SignUp'
 
 import HomeScreen from './screens/HomeScreen';
+import Home from './screens/Home';
+import Passi from './screens/Passi';
+import Events from './screens/Events';
+import Map from './screens/Map';
+import NavBarBottom from './components/NavBarBottom';
+import NavBarTop from './components/NavBarTop';
+import QRNav from './components/QRNav';
 
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   Home: undefined;
+  Events: undefined
+  Map: undefined
+  Passi: undefined
+  QRScanner: undefined
+
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -35,7 +47,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Home" component={Home} />
         ) : (
           <>
             <Stack.Screen name="Login" component={SignIn} />

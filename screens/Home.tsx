@@ -3,7 +3,7 @@ import { useLayoutEffect } from "react";
 import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../components/NavBarBottom";
+import { RootStackParamList } from "../App";
 import NavBarBottom from "../components/NavBarBottom";
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
@@ -31,7 +31,6 @@ export default function Home({navigation}: HomeProps) {
         <View style={styles.container}>
             <Text>Events</Text>
             <StatusBar style="auto" />
-            <NavBarBottom />
         </View>
     );
 }
