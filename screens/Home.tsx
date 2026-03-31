@@ -4,7 +4,6 @@ import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../App";
-import NavBarBottom from "../components/NavBarBottom";
 import QRScanner from "./QRScanner";
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
@@ -30,7 +29,7 @@ export default function Home({navigation}: HomeProps) {
 
     return (
         <View style={styles.container}>
-            <Text>Events</Text>
+            <Text>Home</Text>
             <StatusBar style="auto" />
         </View>
     );
