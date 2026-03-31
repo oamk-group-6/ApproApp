@@ -5,8 +5,8 @@ import { Alert, Button, StyleSheet, Text, View, Dimensions, TouchableOpacity } f
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../components/NavBarBottom";
 import { globalStyles } from "../styles/global";
+import NavBarBottom, { RootStackParamList } from "../components/NavBarBottom";
 
 type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
 

@@ -3,33 +3,37 @@ import { useLayoutEffect } from "react";
 import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../components/NavBarBottom";
+import NavBarTop, { RootStackParamList } from "../components/NavBarBottom";
+import NavBarBottom from "../components/NavBarBottom";
 
 type PassiProps = NativeStackScreenProps<RootStackParamList, 'Passi'>
 
 export default function Passi({navigation}: PassiProps) {
-/*
+
+    /*
     useLayoutEffect(() => {
         navigation.setOptions({ 
             headerStyle: { backgroundColor: 'lightblue' },
             headerTitleStyle: { fontWeight: 'bold' },
-            title: 'Events',
+            title: 'Map',
             headerRight: () => (
                 <Ionicons 
                     name="arrow-forward"
                     size={24}
                     color="black"
                     style={{ marginRight: 15 }}
-                    onPress={() => navigation.navigate('Details')}
+                    onPress={() => navigation.navigate('Details', {message: 'privet'})}
                 />
             ),
         })
     }, []);
-*/
+    */
     return (
         <View style={styles.container}>
-            <Text>Events</Text>
+            <Text>Passi</Text>
             <StatusBar style="auto" />
+            <NavBarTop />
+            <NavBarBottom />
         </View>
     );
 }
