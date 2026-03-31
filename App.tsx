@@ -47,7 +47,11 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
-          <Stack.Screen name="Home" component={Home} />
+          <>
+            <Stack.Screen name="Passi" component={Passi} />
+          <Stack.Screen name="QRScanner" component={QRScanner} />
+
+          </>
         ) : (
           <>
             <Stack.Screen name="Login" component={SignIn} />

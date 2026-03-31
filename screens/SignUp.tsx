@@ -7,7 +7,7 @@ import { registerUser } from '../firebase/services/authService';
 export default function RegisterScreen({navigation}: any) {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleRegister = async () => {
         if(!email || !password){
