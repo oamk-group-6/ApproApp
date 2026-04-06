@@ -4,7 +4,6 @@ import {StyleSheet, Text, View} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../App";
-
 import NavBarBottom from "../components/NavBarBottom";
 
 type MapProps = NativeStackScreenProps<RootStackParamList, 'Map'>

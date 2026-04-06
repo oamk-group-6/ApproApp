@@ -48,7 +48,10 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           <>
-            <Stack.Screen name="Passi" component={Passi} />
+          <Stack.Screen name="Home" component={NavBarBottom} />
+          <Stack.Screen name="Events" component={Events} />
+          <Stack.Screen name="Map" component={Map} />
+          <Stack.Screen name="Passi" component={Passi} />
           <Stack.Screen name="QRScanner" component={QRScanner} />
 
           </>

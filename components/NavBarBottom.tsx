@@ -13,10 +13,26 @@ const Tab = createBottomTabNavigator<RootStackParamList>();
 
 export default function NavBarBottom() {
   return (
-      <Tab.Navigator initialRouteName="Events">
-        <Tab.Screen name="Events" component={Events} />
-        <Tab.Screen name="Home" component={Home} />
-        <Tab.Screen name="Map" component={Map} />        
+      <Tab.Navigator
+      initialRouteName="Events"
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarIcon: ({ color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap;
+
+          if (route.name === "Events") iconName = "calendar";
+          else if (route.name === "Home") iconName = "home";
+          else iconName = "map";
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: "dodgerblue",
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
+        <Tab.Screen name="Map" component={Map} /> 
+        <Tab.Screen name="Home" component={Home} /> 
+        <Tab.Screen name="Events" component={Events} />      
       </Tab.Navigator>
     );
 }
