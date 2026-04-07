@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useLayoutEffect } from "react";
-import {StyleSheet, Text, TouchableOpacity, View, Image} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Image, Pressable } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import NavBarTop, { RootStackParamList } from "../App";
@@ -11,7 +11,7 @@ import QRScanner from "./QRScanner";
 type PassiProps = NativeStackScreenProps<RootStackParamList, 'Passi'>
 
 
-export default function Passi({navigation}: PassiProps) {
+export default function Passi({ navigation }: PassiProps) {
 
     /*
     useLayoutEffect(() => {
@@ -33,6 +33,8 @@ export default function Passi({navigation}: PassiProps) {
     */
     return (
         <View style={styles.container}>
+            <NavBarTop />
+
             <Text style={styles.title}>Sinun Appropassi</Text>
 
             <View>
@@ -40,8 +42,8 @@ export default function Passi({navigation}: PassiProps) {
                     <Text>Placeholder leimoille</Text>
                 </View>
             </View>
-            
-        
+
+
             <View style={styles.qrContainer}>
                 <Text> Skannaa koodi </Text>
                 <TouchableOpacity
