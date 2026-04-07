@@ -1,18 +1,19 @@
 import { StatusBar } from "expo-status-bar";
 import { useLayoutEffect, useState } from "react";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
-import { Alert, Button, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { Alert, Button, StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import NavBarBottom, { RootStackParamList } from "../App";
+import { globalStyles } from "../styles/global";
 
 type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
 
 const { width } = Dimensions.get('window');
 const BOX_SIZE = width * 0.7;
 
-export default function QRScanner({ navigation }: QRScannerProps) {
+export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
     /*
         useLayoutEffect(() => {
             navigation.setOptions({ 
@@ -45,8 +46,13 @@ export default function QRScanner({ navigation }: QRScannerProps) {
     if (!permission.granted) {
         return (
             <View style={styles.container}>
-                <Text>Tarvitsee luvan kameran käyttöön</Text>
-                <Button onPress={requestPermission} title='Anna lupa' />
+                <Text style={[globalStyles.text]}>Tarvitsee luvan kameran käyttöön</Text>
+                <TouchableOpacity
+                    style={[globalStyles.button]}
+                    onPress={requestPermission}
+                >
+                    <Text style={globalStyles.buttonText}>Anna lupa</Text>
+                </TouchableOpacity>
             </View>
         );
     }

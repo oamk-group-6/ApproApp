@@ -8,6 +8,7 @@ import Home from "../screens/Home";
 import { RootStackParamList } from "../App";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import MapStack from "../navigation/MapStack";
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
@@ -30,7 +31,7 @@ export default function NavBarBottom() {
         tabBarInactiveTintColor: "gray",
       })}
     >
-        <Tab.Screen name="Map" component={Map} /> 
+        <Tab.Screen name="Map" component={MapStack} /> 
         <Tab.Screen name="Home" component={Home} /> 
         <Tab.Screen name="Events" component={Events} />      
       </Tab.Navigator>
