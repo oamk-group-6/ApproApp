@@ -8,6 +8,9 @@ import {
   deleteDoc,
   query,
   orderBy,
+  where,
+  limit,
+  Timestamp
 } from "firebase/firestore";
 
 import { db } from "../firebaseConfig";
@@ -37,7 +40,7 @@ export const getAllEvents = async (): Promise<Event[]> => {
     try {
         const q = query(collection(db, "events"), orderBy("date", "asc"));
         const snapshot = await getDocs(q);
-        return snapshot.docs.map((doc)=>doc.data() as Event);
+        return snapshot.docs.map((doc)=> ({id: doc.id ,...doc.data() })) as Event[];
     } catch (error) {
         console.error("Error getting events:", error);
         throw error;
@@ -79,3 +82,31 @@ export const deleteEvent = async (id: string): Promise<void> => {
     throw error;
   }
 };
+
+export const getNextEvent = async (): Promise<Event | null> => {
+  try {
+    const now = new Date().toISOString().split("T")[0]
+
+    const q = query(
+      collection(db, "events"),
+      where("date", ">", now),
+      orderBy("date", "asc"),
+      limit(1)
+    )
+
+    const snapshot = await getDocs(q)
+
+    if (snapshot.empty) return null
+
+    const docSnap = snapshot.docs[0]
+
+    return{
+      id: docSnap.id,
+      ...docSnap.data()
+    } as Event
+
+  } catch (error) {
+    console.error("Error getting next event: ", error)
+    throw error
+  }
+}
