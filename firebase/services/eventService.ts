@@ -10,7 +10,8 @@ import {
   orderBy,
   where,
   limit,
-  Timestamp
+  Timestamp,
+  setDoc
 } from "firebase/firestore";
 
 import { db } from "../firebaseConfig";
@@ -109,4 +110,30 @@ export const getNextEvent = async (): Promise<Event | null> => {
     console.error("Error getting next event: ", error)
     throw error
   }
+}
+
+export const joinEvent = async (eventId: string, userId: string): Promise<"joined" | "alreadyJoined"> => {
+
+  const eventRef = doc(db, "users", userId, "events", eventId)
+  const docSnap = await getDoc(eventRef)
+
+  if (docSnap.exists()) {
+    return "alreadyJoined"
+  }
+
+  await setDoc(
+    doc(db, "users", userId, "events", eventId),
+    {
+      joinedAt: new Date()
+    }
+  )
+  return "joined"
+}
+
+export const getUserEvents = async (userId: string): Promise<string[]> => {
+  const snapshot = await getDocs(
+    collection(db, "users", userId, "events")
+  )
+
+  return snapshot.docs.map(doc => doc.id)
 }
