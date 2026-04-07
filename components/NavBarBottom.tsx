@@ -22,7 +22,7 @@ export default function NavBarBottom() {
 
           if (route.name === "Events") iconName = "calendar";
           else if (route.name === "Home") iconName = "home";
-          else iconName = "map";
+          else iconName = "compass";
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
