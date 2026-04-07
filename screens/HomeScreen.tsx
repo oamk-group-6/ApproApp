@@ -13,10 +13,11 @@ import { addEvent } from "../firebase/services/eventService";
 import AdminOnly from "./AdminOnly";
 
 export default function HomeScreen() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [joinCode, setJoinCode] = useState<string>("")
 
   const handleLogout = async () => {
     try {
@@ -34,6 +35,7 @@ export default function HomeScreen() {
         date,
         location,
         status: "tuleva",
+        joinCode
       });
 
       Alert.alert("Success", "Event created");
@@ -42,6 +44,7 @@ export default function HomeScreen() {
       setDescription("");
       setDate("");
       setLocation("");
+      setJoinCode("")
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Failed to create event");
@@ -79,6 +82,13 @@ export default function HomeScreen() {
           style={styles.input}
           value={location}
           onChangeText={setLocation}
+        />
+
+        <TextInput
+          placeholder="JoinCode"
+          style={styles.input}
+          value={joinCode}
+          onChangeText={setJoinCode}
         />
 
         <Button title="Add Event" onPress={handleAddEvent} />
