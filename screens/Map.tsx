@@ -3,14 +3,14 @@ import { useLayoutEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../App";
 import NavBarBottom from "../components/NavBarBottom";
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavBarTop from "../components/NavBarTop";
+import { MapStackParamList } from "../navigation/MapStack";
 
 
-type MapProps = NativeStackScreenProps<RootStackParamList, 'Map'>
+type MapProps = NativeStackScreenProps<MapStackParamList, 'MapMain'>
 
 export default function Map({ navigation }: MapProps) {
 

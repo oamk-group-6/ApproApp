@@ -1,11 +1,9 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Events from "../screens/Events";
 import Map from "../screens/Map";
 import Passi from "../screens/Passi";
 import QRScanner from "../screens/QRScanner";
 import Home from "../screens/Home";
-import { RootStackParamList } from "../App";
+import { RootStackParamList } from "../navigation/types/navigation";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MapStack from "../navigation/MapStack";

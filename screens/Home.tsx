@@ -3,7 +3,6 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import {Image, StyleSheet, Text, TouchableOpacity, View, Alert, Modal, TextInput} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../App";
 import QRScanner from "./QRScanner";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { globalStyles } from "../styles/global";
@@ -12,6 +11,7 @@ import { Event } from "../firebase/types/event";
 import { useAuth } from "../firebase/hooks/useAuth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import { RootStackParamList } from "../navigation/types/navigation";
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 

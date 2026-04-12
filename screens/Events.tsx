@@ -3,7 +3,6 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import {StyleSheet, Text, View, TextInput, FlatList, Touchable, TouchableOpacity, Modal, Alert} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../App";
 import NavBarBottom from "../components/NavBarBottom";
 import { getAllEvents, joinEvent } from "../firebase/services/eventService";
 import { Event } from "../firebase/types/event";
@@ -11,6 +10,7 @@ import { globalStyles } from "../styles/global"
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../firebase/hooks/useAuth";
 import { getUserEvents } from "../firebase/services/eventService";
+import { RootStackParamList } from "../navigation/types/navigation";
 
 
 type EventsProps = NativeStackScreenProps<RootStackParamList, 'Events'>
