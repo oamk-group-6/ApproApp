@@ -17,18 +17,9 @@ import Events from './screens/Events';
 import Map from './screens/Map';
 import NavBarBottom from './components/NavBarBottom';
 import NavBarTop from './components/NavBarTop';
-import QRNav from './components/QRNav';
+import { RootStackParamList } from './navigation/types/navigation';
 
-export type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
-  Home: undefined;
-  Events: undefined
-  Map: undefined
-  Passi: undefined
-  QRScanner: undefined
 
-};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -48,7 +39,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           <>
-          <Stack.Screen name="Home" component={NavBarBottom} />
+          <Stack.Screen name="MainTabs" component={NavBarBottom} />
           <Stack.Screen name="Events" component={Events} />
           <Stack.Screen name="QRScanner" component={QRScanner} />
 

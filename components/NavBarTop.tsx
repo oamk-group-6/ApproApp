@@ -1,29 +1,33 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 export default function NavBarTop() {
   const navigation = useNavigation<any>();
+  const route = useRoute();
+
+  const isMap = route.name === "MapMain";
+  const isPassi = route.name === "Passi";
 
   return (
     <View style={styles.container}>
       
       {/* MAP */}
       <Pressable
-        style={styles.tab}
-        onPress={() => navigation.navigate("Map")}
+        style={[styles.tab, isMap && styles.activeTab]}
+        onPress={() => navigation.navigate("MapMain")}
       >
-        <Text style={styles.text}>
+        <Text style={[styles.text, isMap && styles.activeText]}>
           Kartta
         </Text>
       </Pressable>
 
       {/* PASSI */}
       <Pressable
-        style={styles.tab}
-        //onPress={() => navigation.navigate("Passi")}
+        style={[styles.tab, isPassi && styles.activeTab]}
+        onPress={() => navigation.navigate("Passi")}
       >
-        <Text style={styles.text}>
+        <Text style={[styles.text, isPassi && styles.activeText]}>
           Appropassi
         </Text>
       </Pressable>
@@ -48,10 +52,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     backgroundColor: "#e6e6e6",
+    borderRadius: 12,
+    overflow: "hidden",
   },
 
   activeTab: {
     backgroundColor: "#fff",
+    borderColor: "#575757",
+    borderWidth: 1,
+    borderRadius: 12,
+    overflow: "hidden",
   },
 
   text: {
