@@ -18,6 +18,7 @@ import Map from './screens/Map';
 import NavBarBottom from './components/NavBarBottom';
 import NavBarTop from './components/NavBarTop';
 import QRNav from './components/QRNav';
+import UserPage from './screens/UserPage';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -27,6 +28,7 @@ export type RootStackParamList = {
   Map: undefined
   Passi: undefined
   QRScanner: undefined
+  UserPage: undefined
 
 };
 
@@ -53,6 +55,7 @@ export default function App() {
           <Stack.Screen name="Map" component={Map} />
           <Stack.Screen name="Passi" component={Passi} />
           <Stack.Screen name="QRScanner" component={QRScanner} />
+          <Stack.Screen name="UserPage" component={UserPage} />
 
           </>
         ) : (
