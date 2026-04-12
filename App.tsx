@@ -17,20 +17,7 @@ import Events from './screens/Events';
 import Map from './screens/Map';
 import NavBarBottom from './components/NavBarBottom';
 import NavBarTop from './components/NavBarTop';
-import QRNav from './components/QRNav';
 import UserPage from './screens/UserPage';
-
-export type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
-  Home: undefined;
-  Events: undefined
-  Map: undefined
-  Passi: undefined
-  QRScanner: undefined
-  UserPage: undefined
-
-};
 import { RootStackParamList } from './navigation/types/navigation';
 
 

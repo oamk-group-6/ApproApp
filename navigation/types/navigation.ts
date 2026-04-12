@@ -6,5 +6,6 @@ export type RootStackParamList = {
   Map: undefined
   Passi: undefined
   QRScanner: undefined
+  UserPage: undefined
   MainTabs: undefined
 };
