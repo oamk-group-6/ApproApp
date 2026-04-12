@@ -1,24 +1,76 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Events from "../screens/Events";
-import Map from "../screens/Map";
-import Passi from "../screens/Passi";
-import QRScanner from "../screens/QRScanner";
-import Home from "../screens/Home";
-import { RootStackParamList } from "../App";
-import { Ionicons } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import React from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
-const Tab = createBottomTabNavigator<RootStackParamList>();
+export default function NavBarTop() {
+  const navigation = useNavigation<any>();
+  const route = useRoute();
 
-export default function NavBarBottom() {
+  const isMap = route.name === "MapMain";
+  const isPassi = route.name === "Passi";
+
   return (
-      <Tab.Navigator initialRouteName="Events">
-        <Tab.Screen name="Events" component={Events} />
-        <Tab.Screen name="Home" component={Home} />
-        <Tab.Screen name="Map" component={Map} />        
-      </Tab.Navigator>
-    );
+    <View style={styles.container}>
+      
+      {/* MAP */}
+      <Pressable
+        style={[styles.tab, isMap && styles.activeTab]}
+        onPress={() => navigation.navigate("MapMain")}
+      >
+        <Text style={[styles.text, isMap && styles.activeText]}>
+          Kartta
+        </Text>
+      </Pressable>
+
+      {/* PASSI */}
+      <Pressable
+        style={[styles.tab, isPassi && styles.activeTab]}
+        onPress={() => navigation.navigate("Passi")}
+      >
+        <Text style={[styles.text, isPassi && styles.activeText]}>
+          Appropassi
+        </Text>
+      </Pressable>
+
+    </View>
+  );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    backgroundColor: "#f2f2f2",
+    borderRadius: 12,
+    margin: 12,
+    overflow: "hidden",
+  },
 
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+    backgroundColor: "#e6e6e6",
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+
+  activeTab: {
+    backgroundColor: "#fff",
+    borderColor: "#575757",
+    borderWidth: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+
+  text: {
+    color: "#888",
+    fontWeight: "500",
+  },
+
+  activeText: {
+    color: "#000",
+    fontWeight: "700",
+  },
+});

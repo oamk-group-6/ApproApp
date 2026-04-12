@@ -1,19 +1,26 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useState } from "react";
-import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Image, StyleSheet, Text, TouchableOpacity, View, Alert, Modal, TextInput} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { RootStackParamList } from "../App";
 import QRScanner from "./QRScanner";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { globalStyles } from "../styles/global";
-import { getNextEvent } from "../firebase/services/eventService";
+import { getNextEvent, joinEvent } from "../firebase/services/eventService";
 import { Event } from "../firebase/types/event";
+import { useAuth } from "../firebase/hooks/useAuth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase/firebaseConfig";
+import { RootStackParamList } from "../navigation/types/navigation";
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 
 export default function Home({navigation}: HomeProps) {
+    const { user, loading } = useAuth()
+
     const [nextEvent, setNextEvent] = useState<Event | null>(null)
+    const [modalVisible, setModalVisible] = useState<boolean>(false)
+    const [joinCode, setJoinCode] = useState<string>("")
 
     useLayoutEffect(() => {
         navigation.setOptions({ 
@@ -40,7 +47,36 @@ export default function Home({navigation}: HomeProps) {
 
       fetchNextEvent()
     }, [])
+
+    const openModal = () => {
+            setModalVisible(true)
+            setJoinCode("")
+        }
     
+    const handleJoin = async () => {
+        if (!nextEvent || !user) return
+
+        if (joinCode !== nextEvent.joinCode) {
+            Alert.alert("Virhe", "Virheellinen koodi.")
+            return
+        }
+
+        const result = await joinEvent(nextEvent.id, user.uid)
+
+        if (result === "alreadyJoined") {
+            Alert.alert("Olet jo liittynyt tähän tapahtumaan.")
+            return
+        }
+
+        setModalVisible(false)
+        setJoinCode("")
+
+        navigation.navigate("Map")
+    }
+
+    if (loading) {
+        return <Text>Ladataan...</Text>;
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -58,13 +94,41 @@ export default function Home({navigation}: HomeProps) {
                         style={styles.image}
                     />
                 
-                    <TouchableOpacity style= {globalStyles.button} onPress={() => console.log("Liity tapahtumaan")}>
+                    <TouchableOpacity style= {globalStyles.button} onPress={openModal}>
                         <Text style={globalStyles.buttonText}>Liity nyt!</Text>
                     </TouchableOpacity>
                 </>
             ) : (
                 <Text>Ei tulevia tapahtumia</Text>
             )}
+
+            <Modal visible={modalVisible} transparent>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>{nextEvent?.title}</Text>
+
+                        <Text style={styles.modalDescription}>{nextEvent?.description}</Text>
+
+                        <TextInput
+                            placeholder="Avain"
+                            value={joinCode}
+                            onChangeText={setJoinCode}
+                            style={styles.modalTextInput}
+                        />
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                                <Text style={styles.cancelButtonText}>Peruuta</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.joinButton} onPress={handleJoin}>
+                                <Text style={globalStyles.buttonText}>Liity</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                    </View>
+                </View>
+            </Modal>
             
             <StatusBar style="auto" />
         </SafeAreaView>
@@ -100,5 +164,57 @@ const styles = StyleSheet.create({
         margin: 12,
         marginBottom: 36,
         marginTop: 36
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.3)"
+    },
+    cancelButton: {
+        backgroundColor: "#eee",
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        width: 100
+    },
+    cancelButtonText: {
+        color: "black",
+        fontWeight: "bold"
+    },
+    joinButton: {
+        backgroundColor: "#F85F6A",
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        width: 100
+    },
+    modalButtons: {
+        flexDirection: "row",
+        gap: 20,
+        justifyContent: "center",
+    },
+    modalContent: {
+        width: "60%",
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 16
+    },
+    modalTitle: {
+        fontSize: 16,
+        fontWeight: "bold",
+        margin: 4
+    },
+    modalDescription: {
+        fontSize: 14,
+        color: "gray",
+        margin: 4,
+        marginBottom: 16
+    },
+    modalTextInput: {
+        backgroundColor: "#eee",
+        borderRadius: 10,
+        marginBottom: 16,
+        textAlign: "left",
     }
 });
