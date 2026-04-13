@@ -6,6 +6,7 @@ import Home from "../screens/Home";
 import { RootStackParamList } from "../navigation/types/navigation";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import UserPage from "../screens/UserPage";
 import MapStack from "../navigation/MapStack";
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -21,6 +22,7 @@ export default function NavBarBottom() {
 
           if (route.name === "Events") iconName = "calendar";
           else if (route.name === "Home") iconName = "home";
+          else if (route.name === "UserPage") iconName = "person";
           else iconName = "compass";
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -31,7 +33,8 @@ export default function NavBarBottom() {
     >
         <Tab.Screen name="Map" component={MapStack} /> 
         <Tab.Screen name="Home" component={Home} /> 
-        <Tab.Screen name="Events" component={Events} />      
+        <Tab.Screen name="Events" component={Events} /> 
+        <Tab.Screen name="UserPage" component={UserPage} />   
       </Tab.Navigator>
     );
 }
