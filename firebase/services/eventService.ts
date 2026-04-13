@@ -137,3 +137,17 @@ export const getUserEvents = async (userId: string): Promise<string[]> => {
 
   return snapshot.docs.map(doc => doc.id)
 }
+
+export const getOwnEvents = async (userId: string): Promise<Event[]> => {
+  const ids = await getUserEvents(userId)
+
+  const events: Event[] = []
+
+  for (const id of ids) {
+    const event = await getEventById(id)
+
+    if (event) events.push(event)
+  }
+
+  return events
+}

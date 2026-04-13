@@ -133,6 +133,10 @@ export default function Events({navigation}: EventsProps) {
                 style={styles.search}
             />
 
+            <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate("OwnEvents")}>
+                <Text style={globalStyles.buttonText}>Omat tapahtumat</Text>
+            </TouchableOpacity>
+
             <FlatList
                 data={filtered}
                 keyExtractor={(item) => item.id}

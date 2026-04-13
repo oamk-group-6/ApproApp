@@ -3,6 +3,7 @@ export type RootStackParamList = {
   Register: undefined;
   Home: undefined;
   Events: undefined
+  OwnEvents: undefined
   Map: undefined
   Passi: undefined
   QRScanner: undefined
