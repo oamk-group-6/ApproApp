@@ -102,7 +102,7 @@ export default function Events({navigation}: EventsProps) {
         setModalVisible(false)
         setJoinCode("")
 
-        navigation.navigate("Map")
+        navigation.navigate("Map", { eventId: selectedEvent.id })
     }
 
     if (loading) {

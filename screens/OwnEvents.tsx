@@ -1,6 +1,6 @@
 import { useAuth } from '../firebase/hooks/useAuth';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 
 import { RootStackParamList } from '../navigation/types/navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,13 +8,15 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from 'react';
 import { getOwnEvents } from '../firebase/services/eventService';
 import { Event } from "../firebase/types/event";
+import { globalStyles } from '../styles/global';
+
 
 
 
 
 type OwnEventsProps = NativeStackScreenProps<RootStackParamList, 'OwnEvents'>
 
-export default function App() {
+export default function OwnEvents({navigation}: OwnEventsProps) {
   const { user, loading } = useAuth();
   const [ownEvents, setOwnEvents] = useState<Event[]>([])
 
@@ -42,6 +44,10 @@ export default function App() {
   const renderItem = ({ item }: { item: Event }) => (
           <View style={styles.item}>
               <Text style={styles.title}>{item.title}</Text>
+
+              <TouchableOpacity style={[globalStyles.button, styles.button]} onPress={() => navigation.navigate("Map", { eventId: item.id })}>
+                <Text style={globalStyles.buttonText}>Tarkastele</Text>
+              </TouchableOpacity>
           </View>
       )
 
@@ -55,6 +61,9 @@ export default function App() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           style={styles.list}
+          ListEmptyComponent={
+            <Text>Et ole vielä liittynyt mihinkään tapahtumaan.</Text>
+          }
       />
       
 
@@ -93,5 +102,8 @@ const styles = StyleSheet.create({
       fontSize: 24,
       marginBottom: 24,
       marginTop: 8
+    },
+    button: {
+      width: 120
     }
 });
