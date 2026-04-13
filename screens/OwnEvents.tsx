@@ -46,13 +46,16 @@ export default function App() {
       )
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
 
-        <FlatList
-            data={ownEvents}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-        />
+      <Text style={styles.headerTitle}>Omat tapahtumat</Text>
+
+      <FlatList
+          data={ownEvents}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          style={styles.list}
+      />
       
 
       <StatusBar style="auto" />
@@ -61,6 +64,12 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+        flex: 1,
+        backgroundColor: "#fff",
+        padding: 10,
+        alignItems: "center"
+    },
     loadingContainer: {
         flex: 1,
         alignItems: 'center',
@@ -79,4 +88,10 @@ const styles = StyleSheet.create({
     list: {
         width: "100%"
     },
+    headerTitle: {
+      fontWeight: "bold",
+      fontSize: 24,
+      marginBottom: 24,
+      marginTop: 8
+    }
 });
