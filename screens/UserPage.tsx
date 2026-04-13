@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { logoutUser } from "../firebase/services/authService";
 import { globalStyles } from "../styles/global";
-import { RootStackParamList } from "../App";
+import { RootStackParamList } from "../navigation/types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type UserPageProps = NativeStackScreenProps<RootStackParamList, 'UserPage'>
