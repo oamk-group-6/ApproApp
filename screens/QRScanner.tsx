@@ -9,6 +9,8 @@ import { RootStackParamList } from "../navigation/types/navigation";
 import { globalStyles } from "../styles/global";
 import { doc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
+import { useAuth } from '../firebase/hooks/useAuth';
+import { scanQrCode } from "../firebase/services/scanService";
 
 type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
 
@@ -54,6 +56,11 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
                 Alert.alert("Virhe", "QR:stä puuttuu barId");
                 return;
             }
+          
+                  if (!user) {
+            Alert.alert("Virhe", "Käyttäjä ei ole kirjautunut sisään")
+            return;
+        }
 
             const barId = parsed.barId;
             const eventId = parsed.eventId; 

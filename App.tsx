@@ -14,9 +14,11 @@ import HomeScreen from './screens/HomeScreen';
 import Home from './screens/Home';
 import Passi from './screens/Passi';
 import Events from './screens/Events';
+import OwnEvents from './screens/OwnEvents'
 import Map from './screens/Map';
 import NavBarBottom from './components/NavBarBottom';
 import NavBarTop from './components/NavBarTop';
+import UserPage from './screens/UserPage';
 import { RootStackParamList } from './navigation/types/navigation';
 
 
@@ -41,7 +43,9 @@ export default function App() {
           <>
           <Stack.Screen name="MainTabs" component={NavBarBottom} />
           <Stack.Screen name="Events" component={Events} />
+          <Stack.Screen name="OwnEvents" component={OwnEvents} />
           <Stack.Screen name="QRScanner" component={QRScanner} />
+          <Stack.Screen name="UserPage" component={UserPage} />
 
           </>
         ) : (

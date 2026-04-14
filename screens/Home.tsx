@@ -71,7 +71,7 @@ export default function Home({navigation}: HomeProps) {
         setModalVisible(false)
         setJoinCode("")
 
-        navigation.navigate("Map")
+        navigation.navigate("Map", {eventId: nextEvent.id})
     }
 
     if (loading) {
