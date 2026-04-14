@@ -1,22 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
-import { Event } from "../types/event";
-import { getAllEvents } from "../firebase/events";
+import { Event } from "../firebase/types/event";
+import { getEventById } from "../firebase/services/eventService"; // ← your wrapper file
+import { useRoute } from "@react-navigation/native";
 
-const CurrentScreen: React.FC = () => {
+const route = useRoute();
+const { eventId } = route.params as { eventId: string };
+
+interface Props {
+  route: {
+    params: {
+      eventId: string;
+    };
+  };
+}
+
+const CurrentScreen: React.FC<Props> = ({ route }) => {
+  const { eventId } = route.params;
+
   const [event, setEvent] = useState<Event | null>(null);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
+  // Load event by ID
   useEffect(() => {
-    const loadCurrentEvent = async () => {
-      const events = await getAllEvents();
-      const current = events.find((e) => e.status === "nykyinen");
-      setEvent(current || null);
+    const loadEvent = async () => {
+      const data = await getEventById(eventId);
+      setEvent(data);
     };
 
-    loadCurrentEvent();
-  }, []);
+    loadEvent();
+  }, [eventId]);
 
+  // Countdown timer
   useEffect(() => {
     if (!event) return;
 
@@ -43,7 +58,7 @@ const CurrentScreen: React.FC = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#000" />
-        <Text style={{ marginTop: 10 }}>Loading current event...</Text>
+        <Text style={{ marginTop: 10 }}>Loading event...</Text>
       </View>
     );
   }
