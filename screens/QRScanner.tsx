@@ -7,6 +7,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../navigation/types/navigation";
 import { globalStyles } from "../styles/global";
+import { doc, setDoc } from "firebase/firestore";
+import { db, auth } from "../firebase/firebaseConfig";
 
 type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
 
@@ -14,32 +16,58 @@ const { width } = Dimensions.get('window');
 const BOX_SIZE = width * 0.7;
 
 export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
-    /*
-        useLayoutEffect(() => {
-            navigation.setOptions({ 
-                headerStyle: { backgroundColor: 'lightblue' },
-                headerTitleStyle: { fontWeight: 'bold' },
-                title: 'Events',
-                headerRight: () => (
-                    <Ionicons 
-                        name="arrow-forward"
-                        size={24}
-                        color="black"
-                        style={{ marginRight: 15 }}
-                        onPress={() => navigation.navigate('Details')}
-                    />
-                ),
-            })
-        }, []);
-    */
 
     const [permission, requestPermission] = useCameraPermissions()
     const [scanned, setScanned] = useState<boolean>(false)
 
-    const barcodeScanned = ({ data }: BarcodeScanningResult): void => {
+    
+    const addStamp = async (barId: string, eventId?: string) => {
+        const uid = auth.currentUser?.uid;
+        if (!uid) return;
+
+        await setDoc(
+            doc(db, "users", uid, "stamps", barId),
+            {
+                barId,
+                eventId: eventId || null, // 🔥 FIX
+                createdAt: Date.now(),
+            }
+        );
+    };
+
+    const barcodeScanned = async ({ data }: BarcodeScanningResult) => {
         setScanned(true);
-        Alert.alert(`Skannaus onnistui!`, `QR: ${data}`)
-    }
+
+        try {
+            const parsed = JSON.parse(data);
+
+            console.log("SCANNED DATA:", parsed);
+
+            //  active check
+            if (!parsed.active) {
+                Alert.alert("Virhe", "QR ei ole aktiivinen");
+                return;
+            }
+
+            //  barId check
+            if (!parsed.barId) {
+                Alert.alert("Virhe", "QR:stä puuttuu barId");
+                return;
+            }
+
+            const barId = parsed.barId;
+            const eventId = parsed.eventId; 
+
+            //  lisää leima Firestoreen
+            await addStamp(barId, eventId);
+
+            Alert.alert("Leima lisätty! 🎉");
+
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Virhe", "QR koodi ei ole validi");
+        }
+    };
 
     if (!permission) return <View />
 
@@ -56,6 +84,7 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             </View>
         );
     }
+
     return (
         <SafeAreaView style={styles.container}>
             <CameraView
@@ -66,6 +95,7 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
                     barcodeTypes: ['qr'],
                 }}
             />
+            
 
             <View style={StyleSheet.absoluteFill}>
                 <View style={styles.overlay} />
@@ -87,7 +117,40 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             </View>
 
             {scanned && <Button title={'Skannaa uudestaan'} onPress={() => setScanned(false)} />}
+
+
+                // TESTI NAPPI (FEIKKI QR SCAN)
+
+                <TouchableOpacity
+    style={{
+        position: "absolute",
+        bottom: 120,
+        alignSelf: "center",
+        backgroundColor: "#F85F6A",
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        zIndex: 9999,
+        elevation: 9999, 
+    }}
+    onPress={() =>
+        barcodeScanned({
+            data: JSON.stringify({
+                active: true,
+                barId: "873wxVW9NCcZ6GdaHkfa",
+                eventId: "dev",
+                codeValue: "baari67",
+                createdAt: Date.now()
+            })
+        } as any)
+    }
+>
+    <Text style={{ color: "white", fontWeight: "700" }}>
+        TEST SCAN
+    </Text>
+</TouchableOpacity>
         </SafeAreaView>
+        
     )
 }
 

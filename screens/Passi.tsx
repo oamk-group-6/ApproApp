@@ -11,19 +11,19 @@ import {
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MapStackParamList } from "../navigation/MapStack";
-import QRScanner from "./QRScanner";
 import { StatusBar } from "expo-status-bar";
 import { db, auth } from "../firebase/firebaseConfig";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
 import NavBarBottom from "../components/NavBarBottom";
 import NavBarTop from "../components/NavBarTop";
-import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type PassiProps = NativeStackScreenProps<MapStackParamList, 'Passi'>;
 
 type Stamp = {
     barId: string;
-    logo: string;
+    createdAt: number;
+    eventId?: string;
 };
 
 export default function Passi({ navigation }: PassiProps) {
@@ -35,8 +35,8 @@ export default function Passi({ navigation }: PassiProps) {
 
     const [infoVisible, setInfoVisible] = useState(false);
     const [stamps, setStamps] = useState<Stamp[]>([]);
+    const [logos, setLogos] = useState<Record<string, string>>({});
 
-    //  TUTKINNOT
     const degrees = [
         { name: "Fuksi", required: 8 },
         { name: "Kandi", required: 10 },
@@ -46,37 +46,59 @@ export default function Passi({ navigation }: PassiProps) {
         { name: "Tohtori", required: 20 },
     ];
 
-    //  FIREBASE LISTENER
-    useEffect(() => {
-        const userId = auth.currentUser?.uid;
-        if (!userId) return;
+    // 🔥 FIRESTORE LISTENER
+useEffect(() => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
 
-        const userRef = doc(db, "users", userId);
+    const stampsRef = collection(db, "users", userId, "stamps");
 
-        const unsub = onSnapshot(userRef, (snap) => {
-            const data = snap.data();
-            setStamps(data?.stamps || []);
-        });
+    const unsub = onSnapshot(stampsRef, (snapshot) => {
+        const data: Stamp[] = snapshot.docs.map(doc => ({
+            barId: doc.data().barId,
+            createdAt: doc.data().createdAt,
+            eventId: doc.data().eventId,
+        }));
 
-        return unsub;
-    }, []);
+        console.log("🔥 STAMPS FROM FIRESTORE:", data);
 
-    // 20 SLOTIN LOGIIKKA
-    const visibleStamps = stamps.slice(0, MAX_STAMPS);
-
-    const slots = Array.from({ length: MAX_STAMPS }, (_, i) => {
-        const stamp = visibleStamps[i];
-
-        return {
-            id: i.toString(),
-            barId: stamp?.barId || null,
-            logo: stamp?.logo || null,
-            done: !!stamp,
-        };
+        setStamps(data);
     });
 
-    //  PROGRESS
-    const completed = stamps.length;
+    return unsub;
+}, []);
+
+    // Baarin logo firestoresta
+    useEffect(() => {
+        const loadLogos = async () => {
+            const map: Record<string, string> = {};
+
+            for (const stamp of stamps) {
+                if (!stamp.barId) continue;
+
+                const barRef = doc(db, "bars", stamp.barId);
+                const barSnap = await getDoc(barRef);
+
+                if (barSnap.exists()) {
+                    map[stamp.barId] = barSnap.data().logo;
+                }
+            }
+
+            setLogos(map);
+        };
+
+        if (stamps.length > 0) loadLogos();
+    }, [stamps]);
+
+    //  Current event (uusin stamp määrää eventin)
+    const currentEventId =
+        stamps.length > 0 ? stamps[stamps.length - 1].eventId : null;
+
+    const filteredStamps = stamps.filter(
+        s => s.eventId === currentEventId
+    );
+
+    const completed = filteredStamps.length;
 
     const currentAchieved = degrees
         .filter(d => completed >= d.required)
@@ -88,67 +110,82 @@ export default function Passi({ navigation }: PassiProps) {
         ? `${nextDegree.name} ${completed}/${nextDegree.required}`
         : `Tohtori ${completed}/${completed}`;
 
+    // 🔥 GRID
+    const visibleStamps = filteredStamps.slice(0, MAX_STAMPS);
+
+    const slots = Array.from({ length: MAX_STAMPS }, (_, i) => {
+        const stamp = visibleStamps[i];
+
+        return {
+            id: i.toString(),
+            barId: stamp?.barId || null,
+            done: !!stamp,
+        };
+    });
+
     return (
-        <View style={styles.container}>
-            {/* TITLE + INFO */}
-            <View style={styles.headerRow}>
-                <Text style={styles.title}>APPROPASSI</Text>
+        <SafeAreaView style={styles.container} edges={["top"]}>
+
+            <NavBarTop />
+
+            <View style={styles.content}>
+
+                <View style={styles.headerRow}>
+                    <Text style={styles.title}>APPROPASSI</Text>
+
+                    <TouchableOpacity
+                        onPress={() => setInfoVisible(true)}
+                        style={styles.infoButton}
+                    >
+                        <Text style={styles.infoText}>i</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text style={styles.progress}>{progressText}</Text>
+
+                <Text style={styles.subProgress}>
+                    {currentAchieved
+                        ? `Saavutettu: ${currentAchieved.name} 🎓`
+                        : "Ei tutkintoa vielä"}
+                </Text>
+
+                <View style={[styles.passCard, { width: PLACEHOLDER_WIDTH }]}>
+                    <FlatList
+                        data={slots}
+                        keyExtractor={(item) => item.id}
+                        numColumns={NUM_PER_ROW}
+                        renderItem={({ item }) => {
+                            if (item.done) {
+                                return (
+                                    <View style={styles.stampDone}>
+                                        <Image
+                                            source={
+                                                item.barId && logos[item.barId]
+                                                    ? { uri: logos[item.barId] }
+                                                    : require("../assets/ilona.png")
+                                            }
+                                            style={styles.logo}
+                                            resizeMode="contain"
+                                        />
+                                    </View>
+                                );
+                            }
+
+                            return <View style={styles.stampPending} />;
+                        }}
+                    />
+                </View>
 
                 <TouchableOpacity
-                    onPress={() => setInfoVisible(true)}
-                    style={styles.infoButton}
+                    style={styles.qrButton}
+                    onPress={() => navigation.navigate("QRScanner")}
                 >
-                    <Text style={styles.infoText}>i</Text>
+                    <Text style={styles.qrText}>Skannaa QR</Text>
                 </TouchableOpacity>
+
             </View>
 
-            {/* PROGRESS */}
-            <Text style={styles.progress}>{progressText}</Text>
-
-            <Text style={styles.subProgress}>
-                {currentAchieved
-                    ? `Saavutettu: ${currentAchieved.name} 🎓`
-                    : "Ei tutkintoa vielä"}
-            </Text>
-
-            {/* PASSI GRID */}
-            <View style={[styles.passCard, { width: PLACEHOLDER_WIDTH }]}>
-                <FlatList
-                    data={slots}
-                    keyExtractor={(item) => item.id}
-                    numColumns={NUM_PER_ROW}
-                    renderItem={({ item }) => {
-                        if (item.done) {
-                            return (
-                                <View style={styles.stampDone}>
-                                    <Image
-                                        source={require("../assets/ilona.png")}
-                                        style={styles.logo}
-                                        resizeMode="contain"
-                                    />
-                                </View>
-                            );
-                        }
-
-                        return <View style={styles.stampPending} />;
-                    }}
-                />
-            </View>
-
-            {/* QR BUTTON */}
-            <TouchableOpacity
-                style={styles.qrButton}
-                onPress={() => navigation.navigate("QRScanner")}
-            >
-                <Text style={styles.qrText}>Skannaa QR</Text>
-            </TouchableOpacity>
-
-            {/* INFO MODAL */}
-            <Modal
-                visible={infoVisible}
-                transparent
-                animationType="fade"
-            >
+            <Modal visible={infoVisible} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalBox}>
                         <Text style={styles.modalTitle}>Tutkinnot 🎓</Text>
@@ -171,15 +208,20 @@ export default function Passi({ navigation }: PassiProps) {
                 </View>
             </Modal>
 
-            <StatusBar style="light" />
-        </View>
+            <StatusBar style="dark" />
+
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#121212",
+        backgroundColor: "#FFFFFF",
+    },
+
+    content: {
+        flex: 1,
         alignItems: "center",
         justifyContent: "center",
         paddingHorizontal: 16,
@@ -194,7 +236,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: "800",
-        color: "#fff",
+        color: "#000",
         letterSpacing: 2,
     },
 
@@ -214,7 +256,7 @@ const styles = StyleSheet.create({
     },
 
     progress: {
-        color: "#fff",
+        color: "#000",
         fontSize: 18,
         fontWeight: "600",
         marginBottom: 4,
@@ -222,20 +264,20 @@ const styles = StyleSheet.create({
     },
 
     subProgress: {
-        color: "#aaa",
+        color: "#555",
         fontSize: 14,
         marginBottom: 16,
         textAlign: "center",
     },
 
     passCard: {
-        backgroundColor: "#1E1E1E",
+        backgroundColor: "#F5F5F5",
         borderRadius: 20,
         padding: 12,
         shadowColor: "#000",
-        shadowOpacity: 0.5,
+        shadowOpacity: 0.1,
         shadowRadius: 10,
-        elevation: 10,
+        elevation: 5,
     },
 
     stampDone: {
@@ -253,9 +295,9 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         margin: 6,
         borderRadius: 999,
-        backgroundColor: "#2A2A2A",
+        backgroundColor: "#E0E0E0",
         borderWidth: 2,
-        borderColor: "#444",
+        borderColor: "#CCC",
     },
 
     logo: {
@@ -279,14 +321,14 @@ const styles = StyleSheet.create({
 
     modalOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.7)",
+        backgroundColor: "rgba(0,0,0,0.4)",
         justifyContent: "center",
         alignItems: "center",
     },
 
     modalBox: {
         width: "80%",
-        backgroundColor: "#1E1E1E",
+        backgroundColor: "#FFFFFF",
         padding: 20,
         borderRadius: 16,
     },
@@ -294,13 +336,13 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 20,
         fontWeight: "800",
-        color: "#fff",
+        color: "#000",
         marginBottom: 12,
         textAlign: "center",
     },
 
     modalText: {
-        color: "#ccc",
+        color: "#333",
         fontSize: 14,
         marginBottom: 6,
     },
