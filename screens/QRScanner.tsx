@@ -7,6 +7,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../navigation/types/navigation";
 import { globalStyles } from "../styles/global";
+import { useAuth } from '../firebase/hooks/useAuth';
+import { scanQrCode } from "../firebase/services/scanService";
 
 type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
 
@@ -36,9 +38,25 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
     const [permission, requestPermission] = useCameraPermissions()
     const [scanned, setScanned] = useState<boolean>(false)
 
-    const barcodeScanned = ({ data }: BarcodeScanningResult): void => {
+    const { user, loading } = useAuth();
+
+    const barcodeScanned = async ({ data }: BarcodeScanningResult) => {
+        if (!user) {
+            Alert.alert("Virhe", "Käyttäjä ei ole kirjautunut sisään")
+            return;
+        }
+
         setScanned(true);
-        Alert.alert(`Skannaus onnistui!`, `QR: ${data}`)
+        
+        try {
+            const result = await scanQrCode(user.uid, data);
+            Alert.alert(
+                result.success ? "Jes! Skannaus onnistui!": "Virhe",
+                result.message
+            );
+        } catch(err){
+            Alert.alert("Virhe", "Skannaus ei onnistunut tällä kerralla...")
+        }
     }
 
     if (!permission) return <View />
@@ -56,6 +74,15 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             </View>
         );
     }
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Ladataan käyttäjän tiedot...</Text>
+            </View>
+        )
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <CameraView
