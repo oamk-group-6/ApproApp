@@ -1,100 +1,357 @@
-import { StatusBar } from "expo-status-bar";
-import { useLayoutEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Image, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    Image,
+    Dimensions,
+    FlatList,
+    Modal
+} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Ionicons } from "@expo/vector-icons";
-//import NavBarTop from "../App";
-import NavBarBottom from "../components/NavBarBottom";
-import QRScanner from "./QRScanner";
 import { MapStackParamList } from "../navigation/MapStack";
+import { StatusBar } from "expo-status-bar";
+import { db, auth } from "../firebase/firebaseConfig";
+import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
+import NavBarBottom from "../components/NavBarBottom";
 import NavBarTop from "../components/NavBarTop";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-type PassiProps = NativeStackScreenProps<MapStackParamList, 'Passi'>
+type PassiProps = NativeStackScreenProps<MapStackParamList, 'Passi'>;
 
+type Stamp = {
+    barId: string;
+    createdAt: number;
+    eventId?: string;
+};
 
 export default function Passi({ navigation }: PassiProps) {
+    const SCREEN_WIDTH = Dimensions.get("window").width;
+    const PLACEHOLDER_WIDTH = SCREEN_WIDTH * 0.92;
 
-    /*
-    useLayoutEffect(() => {
-        navigation.setOptions({ 
-            headerStyle: { backgroundColor: 'lightblue' },
-            headerTitleStyle: { fontWeight: 'bold' },
-            title: 'Map',
-            headerRight: () => (
-                <Ionicons 
-                    name="arrow-forward"
-                    size={24}
-                    color="black"
-                    style={{ marginRight: 15 }}
-                    onPress={() => navigation.navigate('Details', {message: 'privet'})}
-                />
-            ),
-        })
-    }, []);
-    */
+    const NUM_PER_ROW = 4;
+    const MAX_STAMPS = 20;
+
+    const [infoVisible, setInfoVisible] = useState(false);
+    const [stamps, setStamps] = useState<Stamp[]>([]);
+    const [logos, setLogos] = useState<Record<string, string>>({});
+
+    const degrees = [
+        { name: "Fuksi", required: 8 },
+        { name: "Kandi", required: 10 },
+        { name: "Maisteri", required: 12 },
+        { name: "DI", required: 15 },
+        { name: "Professori", required: 18 },
+        { name: "Tohtori", required: 20 },
+    ];
+
+    // 🔥 FIRESTORE LISTENER
+useEffect(() => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+
+    const stampsRef = collection(db, "users", userId, "stamps");
+
+    const unsub = onSnapshot(stampsRef, (snapshot) => {
+        const data: Stamp[] = snapshot.docs.map(doc => ({
+            barId: doc.data().barId,
+            createdAt: doc.data().createdAt,
+            eventId: doc.data().eventId,
+        }));
+
+        console.log("🔥 STAMPS FROM FIRESTORE:", data);
+
+        setStamps(data);
+    });
+
+    return unsub;
+}, []);
+
+    // Baarin logo firestoresta
+    useEffect(() => {
+        const loadLogos = async () => {
+            const map: Record<string, string> = {};
+
+            for (const stamp of stamps) {
+                if (!stamp.barId) continue;
+
+                const barRef = doc(db, "bars", stamp.barId);
+                const barSnap = await getDoc(barRef);
+
+                if (barSnap.exists()) {
+                    map[stamp.barId] = barSnap.data().logo;
+                }
+            }
+
+            setLogos(map);
+        };
+
+        if (stamps.length > 0) loadLogos();
+    }, [stamps]);
+
+    //  Current event (uusin stamp määrää eventin)
+    const currentEventId =
+        stamps.length > 0 ? stamps[stamps.length - 1].eventId : null;
+
+    const filteredStamps = stamps.filter(
+        s => s.eventId === currentEventId
+    );
+
+    const completed = filteredStamps.length;
+
+    const currentAchieved = degrees
+        .filter(d => completed >= d.required)
+        .slice(-1)[0];
+
+    const nextDegree = degrees.find(d => completed < d.required);
+
+    const progressText = nextDegree
+        ? `${nextDegree.name} ${completed}/${nextDegree.required}`
+        : `Tohtori ${completed}/${completed}`;
+
+    // 🔥 GRID
+    const visibleStamps = filteredStamps.slice(0, MAX_STAMPS);
+
+    const slots = Array.from({ length: MAX_STAMPS }, (_, i) => {
+        const stamp = visibleStamps[i];
+
+        return {
+            id: i.toString(),
+            barId: stamp?.barId || null,
+            done: !!stamp,
+        };
+    });
+
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container} edges={["top"]}>
+
             <NavBarTop />
 
-            <Text style={styles.title}>Sinun Appropassi</Text>
+            <View style={styles.content}>
 
-            <View>
-                <View style={styles.placeholder}>
-                    <Text>Placeholder leimoille</Text>
-                </View>
-            </View>
+                <View style={styles.headerRow}>
+                    <Text style={styles.title}>APPROPASSI</Text>
 
-
-            <View style={styles.qrContainer}>
-                <Text> Skannaa koodi </Text>
-                <TouchableOpacity
-                    style={styles.qrBox}
-                    onPress={() => navigation.getParent()?.navigate('QRScanner')}
-                >
-                    <Image
-                        source={require("../assets/qr_placeholder.jpg")}
-                        style={styles.qrImage}
+                    <TouchableOpacity
+                        onPress={() => setInfoVisible(true)}
+                        style={styles.infoButton}
                     >
-                    </Image>
+                        <Text style={styles.infoText}>i</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text style={styles.progress}>{progressText}</Text>
+
+                <Text style={styles.subProgress}>
+                    {currentAchieved
+                        ? `Saavutettu: ${currentAchieved.name} 🎓`
+                        : "Ei tutkintoa vielä"}
+                </Text>
+
+                <View style={[styles.passCard, { width: PLACEHOLDER_WIDTH }]}>
+                    <FlatList
+                        data={slots}
+                        keyExtractor={(item) => item.id}
+                        numColumns={NUM_PER_ROW}
+                        renderItem={({ item }) => {
+                            if (item.done) {
+                                return (
+                                    <View style={styles.stampDone}>
+                                        <Image
+                                            source={
+                                                item.barId && logos[item.barId]
+                                                    ? { uri: logos[item.barId] }
+                                                    : require("../assets/ilona.png")
+                                            }
+                                            style={styles.logo}
+                                            resizeMode="contain"
+                                        />
+                                    </View>
+                                );
+                            }
+
+                            return <View style={styles.stampPending} />;
+                        }}
+                    />
+                </View>
+
+                <TouchableOpacity
+                    style={styles.qrButton}
+                    onPress={() => navigation.navigate("QRScanner")}
+                >
+                    <Text style={styles.qrText}>Skannaa QR</Text>
                 </TouchableOpacity>
+
             </View>
 
-            <StatusBar style="auto" />
-        </View>
+            <Modal visible={infoVisible} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Tutkinnot 🎓</Text>
+
+                        {degrees.map((d, i) => (
+                            <Text key={i} style={styles.modalText}>
+                                {d.name} – {d.required} leimaa
+                            </Text>
+                        ))}
+
+                        <TouchableOpacity
+                            onPress={() => setInfoVisible(false)}
+                            style={styles.closeButton}
+                        >
+                            <Text style={{ color: "#fff", fontWeight: "700" }}>
+                                Sulje
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            <StatusBar style="dark" />
+
+        </SafeAreaView>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "#FFFFFF",
+    },
+
+    content: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 16,
+    },
+
+    headerRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 6,
+    },
+
+    title: {
+        fontSize: 28,
+        fontWeight: "800",
+        color: "#000",
+        letterSpacing: 2,
+    },
+
+    infoButton: {
+        marginLeft: 10,
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        backgroundColor: "#F85F6A",
         alignItems: "center",
         justifyContent: "center",
     },
-    title: {
+
+    infoText: {
+        color: "#fff",
+        fontWeight: "800",
+    },
+
+    progress: {
+        color: "#000",
+        fontSize: 18,
+        fontWeight: "600",
+        marginBottom: 4,
+        textAlign: "center",
+    },
+
+    subProgress: {
+        color: "#555",
+        fontSize: 14,
+        marginBottom: 16,
+        textAlign: "center",
+    },
+
+    passCard: {
+        backgroundColor: "#F5F5F5",
+        borderRadius: 20,
+        padding: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+
+    stampDone: {
+        flex: 1 / 4,
+        aspectRatio: 1,
+        margin: 6,
+        borderRadius: 999,
+        backgroundColor: "#F85F6A",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    stampPending: {
+        flex: 1 / 4,
+        aspectRatio: 1,
+        margin: 6,
+        borderRadius: 999,
+        backgroundColor: "#E0E0E0",
+        borderWidth: 2,
+        borderColor: "#CCC",
+    },
+
+    logo: {
+        width: "70%",
+        height: "70%",
+    },
+
+    qrButton: {
+        marginTop: 24,
+        backgroundColor: "#F85F6A",
+        paddingVertical: 14,
+        paddingHorizontal: 40,
+        borderRadius: 30,
+    },
+
+    qrText: {
+        color: "#fff",
+        fontWeight: "700",
+        fontSize: 16,
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    modalBox: {
+        width: "80%",
+        backgroundColor: "#FFFFFF",
+        padding: 20,
+        borderRadius: 16,
+    },
+
+    modalTitle: {
         fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 16
+        fontWeight: "800",
+        color: "#000",
+        marginBottom: 12,
+        textAlign: "center",
     },
-    qrContainer: {
-        alignItems: 'center',
-        marginTop: 16
+
+    modalText: {
+        color: "#333",
+        fontSize: 14,
+        marginBottom: 6,
     },
-    qrBox: {
-        width: 80,
-        height: 80,
-        borderWidth: 1,
-        marginTop: 10,
-        alignItems: 'center',
-        justifyContent: 'center'
+
+    closeButton: {
+        marginTop: 16,
+        backgroundColor: "#F85F6A",
+        padding: 10,
+        borderRadius: 10,
+        alignItems: "center",
     },
-    qrImage: {
-        width: '85%',
-        height: '85%',
-    },
-    placeholder: {
-        width: 300,
-        height: 500,
-        borderWidth: 1
-    }
 });
