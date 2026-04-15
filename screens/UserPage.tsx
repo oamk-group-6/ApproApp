@@ -4,9 +4,13 @@ import { globalStyles } from "../styles/global";
 import { RootStackParamList } from "../navigation/types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useUserRole } from "../firebase/hooks/useUserRole";
+
 type UserPageProps = NativeStackScreenProps<RootStackParamList, 'UserPage'>
 
 export default function UserPage({ navigation }: UserPageProps) {
+
+  const { isAdmin, loading } = useUserRole()
 
   const handleLogout = async () => {
   try {
@@ -27,9 +31,15 @@ export default function UserPage({ navigation }: UserPageProps) {
     <View style={styles.container}>
       <Text style={styles.title}>Käyttäjä</Text>
 
-      <TouchableOpacity style={globalStyles.button} onPress={handleLogout}>
+      <TouchableOpacity style={[globalStyles.button, styles.button]} onPress={handleLogout}>
         <Text style={globalStyles.buttonText}>Kirjaudu ulos</Text>
       </TouchableOpacity>
+
+      {!loading && isAdmin && (
+        <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate("HomeScreen")}>
+          <Text style={globalStyles.buttonText}>Luo tapahtuma</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -46,4 +56,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 40,
   },
+  button: {
+    marginBottom: 10
+  }
 });

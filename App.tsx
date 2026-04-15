@@ -46,7 +46,7 @@ export default function App() {
           <Stack.Screen name="OwnEvents" component={OwnEvents} />
           <Stack.Screen name="QRScanner" component={QRScanner} />
           <Stack.Screen name="UserPage" component={UserPage} />
-
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
           </>
         ) : (
           <>
