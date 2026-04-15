@@ -9,4 +9,5 @@ export type RootStackParamList = {
   QRScanner: undefined
   UserPage: undefined
   MainTabs: undefined
+  HomeScreen: undefined
 };

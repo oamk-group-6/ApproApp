@@ -19,6 +19,8 @@ const BOX_SIZE = width * 0.7;
 
 export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
 
+    const { user, loading } = useAuth();
+
     const [permission, requestPermission] = useCameraPermissions()
     const [scanned, setScanned] = useState<boolean>(false)
 
@@ -92,6 +94,14 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
         );
     }
 
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Ladataan...</Text>
+            </View>
+        )
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <CameraView
@@ -126,36 +136,35 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             {scanned && <Button title={'Skannaa uudestaan'} onPress={() => setScanned(false)} />}
 
 
-                // TESTI NAPPI (FEIKKI QR SCAN)
-
-                <TouchableOpacity
-    style={{
-        position: "absolute",
-        bottom: 120,
-        alignSelf: "center",
-        backgroundColor: "#F85F6A",
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 20,
-        zIndex: 9999,
-        elevation: 9999, 
-    }}
-    onPress={() =>
-        barcodeScanned({
-            data: JSON.stringify({
-                active: true,
-                barId: "873wxVW9NCcZ6GdaHkfa",
-                eventId: "dev",
-                codeValue: "baari67",
-                createdAt: Date.now()
-            })
-        } as any)
-    }
->
-    <Text style={{ color: "white", fontWeight: "700" }}>
-        TEST SCAN
-    </Text>
-</TouchableOpacity>
+            // TESTI NAPPI (FEIKKI QR SCAN)
+            <TouchableOpacity
+                style={{
+                    position: "absolute",
+                    bottom: 120,
+                    alignSelf: "center",
+                    backgroundColor: "#F85F6A",
+                    paddingVertical: 12,
+                    paddingHorizontal: 20,
+                    borderRadius: 20,
+                    zIndex: 9999,
+                    elevation: 9999,
+                }}
+                onPress={() =>
+                    barcodeScanned({
+                        data: JSON.stringify({
+                            active: true,
+                            barId: "873wxVW9NCcZ6GdaHkfa",
+                            eventId: "dev",
+                            codeValue: "baari67",
+                            createdAt: Date.now()
+                        })
+                    } as any)
+                }
+            >
+                <Text style={{ color: "white", fontWeight: "700" }}>
+                    TEST SCAN
+                </Text>
+            </TouchableOpacity>
         </SafeAreaView>
         
     )

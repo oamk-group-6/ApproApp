@@ -90,8 +90,13 @@ export default function Home({navigation}: HomeProps) {
                     </View>
 
                     <Image
-                        source={require("../assets/poster_placeholder.jpg")}
+                        source={
+                            nextEvent?.imageUrl
+                            ? { uri: nextEvent.imageUrl}
+                            : require("../assets/poster_placeholder.jpg")
+                        }
                         style={styles.image}
+                        resizeMode="contain"
                     />
                 
                     <TouchableOpacity style= {globalStyles.button} onPress={openModal}>
@@ -108,6 +113,15 @@ export default function Home({navigation}: HomeProps) {
                         <Text style={styles.modalTitle}>{nextEvent?.title}</Text>
 
                         <Text style={styles.modalDescription}>{nextEvent?.description}</Text>
+
+                        <Image
+                            source={
+                                nextEvent?.imageUrl
+                                ? { uri: nextEvent.imageUrl }
+                                : require("../assets/poster_placeholder.jpg")
+                            }
+                            style={styles.modalImage}
+                        />
 
                         <TextInput
                             placeholder="Avain"
@@ -159,11 +173,14 @@ const styles = StyleSheet.create({
         marginTop: 2
     },
     image: {
-        width: 300,
-        height: 500,
+        minWidth: 300,
+        minHeight: 450,
+        maxWidth: 350,
+        maxHeight: 550,
         margin: 12,
         marginBottom: 36,
-        marginTop: 36
+        marginTop: 36,
+        borderRadius: 10
     },
     modalOverlay: {
         flex: 1,
@@ -216,5 +233,11 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 16,
         textAlign: "left",
-    }
+    },
+    modalImage: {
+        height: 180,
+        width: "100%",
+        borderRadius: 10,
+        marginBottom: 10
+    },
 });

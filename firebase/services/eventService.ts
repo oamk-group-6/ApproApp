@@ -17,7 +17,7 @@ import {
 import { db } from "../firebaseConfig";
 import { Event, CreateEvent } from "../types/event";
 
-export const addEvent = async (eventData: CreateEvent): Promise<Event> => {
+export const addEvent = async (eventData: CreateEvent, selectedBars: string[]): Promise<Event> => {
     try {
         const docRef = await addDoc(collection(db, "events"), eventData);
 
@@ -29,6 +29,10 @@ export const addEvent = async (eventData: CreateEvent): Promise<Event> => {
         await updateDoc(doc(db, "events", docRef.id), {
             id: docRef.id,
         });
+
+        for (const barId of selectedBars) {
+          await setDoc(doc(db, "events", docRef.id, "bars", barId), {})
+        }
 
         return newEvent;
     } catch (error) {

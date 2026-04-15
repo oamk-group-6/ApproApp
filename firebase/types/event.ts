@@ -8,6 +8,7 @@ export interface Event {
     location: string
     status: 'tuleva' | 'nykyinen' | 'mennyt'
     joinCode: string
+    imageUrl: string
 }
 
 export type CreateEvent = Omit<Event, "id">;

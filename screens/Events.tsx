@@ -1,9 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useState } from "react";
-import {StyleSheet, Text, View, TextInput, FlatList, Touchable, TouchableOpacity, Modal, Alert} from "react-native";
+import {StyleSheet, Text, View, TextInput, FlatList, Touchable, TouchableOpacity, Modal, Alert, Image} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import NavBarBottom from "../components/NavBarBottom";
 import { getAllEvents, joinEvent } from "../firebase/services/eventService";
 import { Event } from "../firebase/types/event";
 import { globalStyles } from "../styles/global"
@@ -113,8 +112,13 @@ export default function Events({navigation}: EventsProps) {
     const renderItem = ({ item }: { item: Event }) => (
         <View style={styles.item}>
             <Text style={styles.title}>{item.title}</Text>
+
+            <Text style={styles.date}>
+                {item.date ? new Date(item.date).toLocaleDateString("fi-FI") : ""}
+            </Text>
+
             <TouchableOpacity 
-                style={[globalStyles.button, isJoined(item.id) && {backgroundColor: "green"}]}
+                style={[globalStyles.button, isJoined(item.id) && {backgroundColor: "green"}, styles.button]}
                 disabled={isJoined(item.id)} 
                 onPress={() => openModal(item)}
             >
@@ -126,6 +130,9 @@ export default function Events({navigation}: EventsProps) {
 
     return (
         <SafeAreaView style={styles.container}>
+
+            <Text style={styles.headerTitle}>Tapahtumat</Text>
+
             <TextInput
                 placeholder="Hae tapahtumia"
                 value={search}
@@ -147,7 +154,20 @@ export default function Events({navigation}: EventsProps) {
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>{selectedEvent?.title}</Text>
 
+                        <Text style={styles.modalTitle}>
+                            {selectedEvent?.date ? new Date(selectedEvent?.date).toLocaleDateString("fi-FI") : ""}
+                        </Text>
+
                         <Text style={styles.modalDescription}>{selectedEvent?.description}</Text>
+
+                        <Image
+                            source={
+                                selectedEvent?.imageUrl
+                                ? { uri: selectedEvent.imageUrl }
+                                : require("../assets/poster_placeholder.jpg")
+                            }
+                            style={styles.modalImage}
+                        />
 
                         <TextInput 
                             placeholder="Avain"
@@ -197,7 +217,12 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1
     },
     title: {
-        fontSize: 16
+        fontSize: 20,
+        fontWeight: "700"
+    },
+    date: {
+        fontSize: 16,
+        fontWeight: "500"
     },
     list: {
         width: "100%"
@@ -253,5 +278,20 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 16,
         textAlign: "left",
-    }
+    },
+    headerTitle: {
+      fontWeight: "bold",
+      fontSize: 24,
+      marginBottom: 24,
+      marginTop: 8
+    },
+    modalImage: {
+        height: 180,
+        width: "100%",
+        borderRadius: 10,
+        marginBottom: 10
+    },
+    button: {
+      width: 120
+    },
 });
