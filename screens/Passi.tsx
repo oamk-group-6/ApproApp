@@ -14,7 +14,6 @@ import { MapStackParamList } from "../navigation/MapStack";
 import { StatusBar } from "expo-status-bar";
 import { db, auth } from "../firebase/firebaseConfig";
 import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
-import NavBarBottom from "../components/NavBarBottom";
 import NavBarTop from "../components/NavBarTop";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,7 +25,13 @@ type Stamp = {
     eventId?: string;
 };
 
+type Degree = {
+    name: string;
+    required: number;
+};
+
 export default function Passi({ navigation }: PassiProps) {
+
     const SCREEN_WIDTH = Dimensions.get("window").width;
     const PLACEHOLDER_WIDTH = SCREEN_WIDTH * 0.92;
 
@@ -36,39 +41,29 @@ export default function Passi({ navigation }: PassiProps) {
     const [infoVisible, setInfoVisible] = useState(false);
     const [stamps, setStamps] = useState<Stamp[]>([]);
     const [logos, setLogos] = useState<Record<string, string>>({});
+    const [degrees, setDegrees] = useState<Degree[]>([]);
 
-    const degrees = [
-        { name: "Fuksi", required: 8 },
-        { name: "Kandi", required: 10 },
-        { name: "Maisteri", required: 12 },
-        { name: "DI", required: 15 },
-        { name: "Professori", required: 18 },
-        { name: "Tohtori", required: 20 },
-    ];
+    // 🔥 STAMPS LISTENER
+    useEffect(() => {
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
 
-    // 🔥 FIRESTORE LISTENER
-useEffect(() => {
-    const userId = auth.currentUser?.uid;
-    if (!userId) return;
+        const stampsRef = collection(db, "users", userId, "stamps");
 
-    const stampsRef = collection(db, "users", userId, "stamps");
+        const unsub = onSnapshot(stampsRef, (snapshot) => {
+            const data: Stamp[] = snapshot.docs.map(doc => ({
+                barId: doc.data().barId,
+                createdAt: doc.data().createdAt,
+                eventId: doc.data().eventId,
+            }));
 
-    const unsub = onSnapshot(stampsRef, (snapshot) => {
-        const data: Stamp[] = snapshot.docs.map(doc => ({
-            barId: doc.data().barId,
-            createdAt: doc.data().createdAt,
-            eventId: doc.data().eventId,
-        }));
+            setStamps(data);
+        });
 
-        console.log("🔥 STAMPS FROM FIRESTORE:", data);
+        return unsub;
+    }, []);
 
-        setStamps(data);
-    });
-
-    return unsub;
-}, []);
-
-    // Baarin logo firestoresta
+    // 🔥 LOAD LOGOS
     useEffect(() => {
         const loadLogos = async () => {
             const map: Record<string, string> = {};
@@ -90,10 +85,31 @@ useEffect(() => {
         if (stamps.length > 0) loadLogos();
     }, [stamps]);
 
-    //  Current event (uusin stamp määrää eventin)
+    // 🔥 UUSIN EVENT STAMPEISTA (TÄRKEIN FIX)
     const currentEventId =
-        stamps.length > 0 ? stamps[stamps.length - 1].eventId : null;
+        [...stamps]
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .find(s => s.eventId)
+            ?.eventId ?? null;
 
+    // 🔥 LOAD EVENT DEGREES
+    useEffect(() => {
+        const loadEvent = async () => {
+            if (!currentEventId) return;
+
+            const eventRef = doc(db, "events", currentEventId);
+            const snap = await getDoc(eventRef);
+
+            if (snap.exists()) {
+                const data = snap.data();
+                setDegrees(data.degrees || []);
+            }
+        };
+
+        loadEvent();
+    }, [currentEventId]);
+
+    // 🔥 FILTER STAMPS BY EVENT
     const filteredStamps = stamps.filter(
         s => s.eventId === currentEventId
     );
@@ -108,7 +124,7 @@ useEffect(() => {
 
     const progressText = nextDegree
         ? `${nextDegree.name} ${completed}/${nextDegree.required}`
-        : `Tohtori ${completed}/${completed}`;
+        : `${currentAchieved?.name ?? "Valmis"} ${completed}/${completed}`;
 
     // 🔥 GRID
     const visibleStamps = filteredStamps.slice(0, MAX_STAMPS);
