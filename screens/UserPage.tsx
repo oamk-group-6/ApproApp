@@ -13,18 +13,18 @@ export default function UserPage({ navigation }: UserPageProps) {
   const { isAdmin, loading } = useUserRole()
 
   const handleLogout = async () => {
-  try {
-    await logoutUser();
+    try {
+      await logoutUser();
 
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }], // your root entry point
-    });
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Login" }], // your root entry point
+      });
 
-  } catch (error: any) {
-    Alert.alert("Virhe", error.message || "Uloskirjautuminen epäonnistui");
-  }
-};
+    } catch (error: any) {
+      Alert.alert("Virhe", error.message || "Uloskirjautuminen epäonnistui");
+    }
+  };
 
 
   return (
@@ -36,8 +36,13 @@ export default function UserPage({ navigation }: UserPageProps) {
       </TouchableOpacity>
 
       {!loading && isAdmin && (
-        <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate("HomeScreen")}>
+        <TouchableOpacity style={[globalStyles.button, styles.button]} onPress={() => navigation.navigate("HomeScreen")}>
           <Text style={globalStyles.buttonText}>Luo tapahtuma</Text>
+        </TouchableOpacity>
+      )}
+      {!loading && isAdmin && (
+        <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate("Statistics")}>
+          <Text style={globalStyles.buttonText}>Tilastot</Text>
         </TouchableOpacity>
       )}
     </View>

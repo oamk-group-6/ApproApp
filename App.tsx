@@ -20,6 +20,7 @@ import NavBarBottom from './components/NavBarBottom';
 import NavBarTop from './components/NavBarTop';
 import UserPage from './screens/UserPage';
 import { RootStackParamList } from './navigation/types/navigation';
+import Statistics from './screens/Statistics';
 
 
 
@@ -47,6 +48,7 @@ export default function App() {
           <Stack.Screen name="QRScanner" component={QRScanner} />
           <Stack.Screen name="UserPage" component={UserPage} />
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <Stack.Screen name="Statistics" component={Statistics} />
           </>
         ) : (
           <>
