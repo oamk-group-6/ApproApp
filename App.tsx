@@ -20,6 +20,7 @@ import NavBarBottom from './components/NavBarBottom';
 import NavBarTop from './components/NavBarTop';
 import UserPage from './screens/UserPage';
 import { RootStackParamList } from './navigation/types/navigation';
+import { EventProvider } from "./context/EventContext";
 
 
 
@@ -37,7 +38,8 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
+    <EventProvider>
+      <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           <>
@@ -58,6 +60,7 @@ export default function App() {
 
       <StatusBar style="auto" />
     </NavigationContainer>
+    </EventProvider>
   );
 }
 

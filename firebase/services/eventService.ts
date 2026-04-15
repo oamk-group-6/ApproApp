@@ -17,7 +17,58 @@ import {
 import { db } from "../firebaseConfig";
 import { Event, CreateEvent } from "../types/event";
 
-export const addEvent = async (eventData: CreateEvent, selectedBars: string[]): Promise<Event> => {
+export interface EventBar {
+  id: string;
+  name?: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+type RawBarData = {
+  id?: string;
+  barId?: string;
+  name?: string;
+  location?: {
+    latitude?: number;
+    longitude?: number;
+    _latitude?: number;
+    _longitude?: number;
+  };
+  latitude?: number;
+  longitude?: number;
+  coordinates?: {
+    latitude?: number;
+    longitude?: number;
+    lat?: number;
+    lng?: number;
+  };
+};
+
+const resolveBarCoordinates = (barData: RawBarData): EventBar["location"] | null => {
+  const latitude =
+    barData.location?.latitude ??
+    barData.location?._latitude ??
+    barData.coordinates?.latitude ??
+    barData.coordinates?.lat ??
+    barData.latitude;
+
+  const longitude =
+    barData.location?.longitude ??
+    barData.location?._longitude ??
+    barData.coordinates?.longitude ??
+    barData.coordinates?.lng ??
+    barData.longitude;
+
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    return null;
+  }
+
+  return { latitude, longitude };
+};
+
+export const addEvent = async (eventData: CreateEvent, selectedBars: string[] = []): Promise<Event> => {
     try {
         const docRef = await addDoc(collection(db, "events"), eventData);
 
@@ -155,3 +206,60 @@ export const getOwnEvents = async (userId: string): Promise<Event[]> => {
 
   return events
 }
+
+
+export const getEventBars = async (eventId?: string): Promise<EventBar[]> => {
+  if (!eventId) {
+    return [];
+  }
+
+  try {
+    const eventBarsSnapshot = await getDocs(
+      collection(db, "events", eventId, "bars")
+    );
+
+    const eventBarIds = Array.from(
+      new Set(
+        eventBarsSnapshot.docs
+          .map((eventBarDoc) => {
+            const eventBarData = eventBarDoc.data() as RawBarData;
+            return eventBarData.barId ?? eventBarDoc.id;
+          })
+          .filter((barId): barId is string => Boolean(barId))
+      )
+    );
+
+    if (eventBarIds.length === 0) {
+      return [];
+    }
+
+    const bars = await Promise.all(
+      eventBarIds.map(async (barId) => {
+        const barSnapshot = await getDoc(doc(db, "bars", barId));
+
+        if (!barSnapshot.exists()) {
+          return null;
+        }
+
+        const barData = barSnapshot.data() as RawBarData;
+        const location = resolveBarCoordinates(barData);
+
+        if (!location) {
+          console.warn(`Bar ${barId} is missing valid coordinates`);
+          return null;
+        }
+
+        return {
+          ...barData,
+          id: barSnapshot.id,
+          location,
+        };
+      })
+    );
+
+    return bars.filter((bar): bar is EventBar => Boolean(bar));
+  } catch (error) {
+    console.error("Error getting event bars:", error);
+        throw error;
+    }
+};

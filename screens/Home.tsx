@@ -12,6 +12,7 @@ import { useAuth } from "../firebase/hooks/useAuth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { RootStackParamList } from "../navigation/types/navigation";
+import { useEvent } from "../context/EventContext";
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 
@@ -21,6 +22,7 @@ export default function Home({navigation}: HomeProps) {
     const [nextEvent, setNextEvent] = useState<Event | null>(null)
     const [modalVisible, setModalVisible] = useState<boolean>(false)
     const [joinCode, setJoinCode] = useState<string>("")
+    const { setEventId } = useEvent();
 
     useLayoutEffect(() => {
         navigation.setOptions({ 
@@ -71,7 +73,11 @@ export default function Home({navigation}: HomeProps) {
         setModalVisible(false)
         setJoinCode("")
 
-        navigation.navigate("Map", {eventId: nextEvent.id})
+        setEventId(nextEvent.id);
+        navigation.navigate("Map", {
+            screen: "MapMain",
+            params: { eventId: nextEvent.id }
+        });
     }
 
     if (loading) {
