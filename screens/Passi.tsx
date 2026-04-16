@@ -26,13 +26,12 @@ type Stamp = {
     eventId?: string;
 };
 
-export default function Passi({ navigation, route }: PassiProps) {
 type Degree = {
     name: string;
     required: number;
-};
+}
 
-export default function Passi({ navigation }: PassiProps) {
+export default function Passi({ navigation, route }: PassiProps) {
 
     const SCREEN_WIDTH = Dimensions.get("window").width;
     const PLACEHOLDER_WIDTH = SCREEN_WIDTH * 0.92;
