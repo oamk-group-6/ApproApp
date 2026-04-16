@@ -16,6 +16,7 @@ import { db, auth } from "../firebase/firebaseConfig";
 import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
 import NavBarTop from "../components/NavBarTop";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useEvent } from "../context/EventContext";
 
 type PassiProps = NativeStackScreenProps<MapStackParamList, 'Passi'>;
 
@@ -25,6 +26,7 @@ type Stamp = {
     eventId?: string;
 };
 
+export default function Passi({ navigation, route }: PassiProps) {
 type Degree = {
     name: string;
     required: number;
@@ -41,6 +43,8 @@ export default function Passi({ navigation }: PassiProps) {
     const [infoVisible, setInfoVisible] = useState(false);
     const [stamps, setStamps] = useState<Stamp[]>([]);
     const [logos, setLogos] = useState<Record<string, string>>({});
+    const { eventId, isReady } = useEvent();
+    const selectedEventId = route.params?.eventId ?? eventId;
     const [degrees, setDegrees] = useState<Degree[]>([]);
 
     // 🔥 STAMPS LISTENER
@@ -85,13 +89,16 @@ export default function Passi({ navigation }: PassiProps) {
         if (stamps.length > 0) loadLogos();
     }, [stamps]);
 
+    //  Current event (uusin stamp määrää eventin)
+    const currentEventId = selectedEventId;
     // 🔥 UUSIN EVENT STAMPEISTA (TÄRKEIN FIX)
+  /*
     const currentEventId =
         [...stamps]
             .sort((a, b) => b.createdAt - a.createdAt)
             .find(s => s.eventId)
             ?.eventId ?? null;
-
+  */
     // 🔥 LOAD EVENT DEGREES
     useEffect(() => {
         const loadEvent = async () => {
@@ -111,7 +118,7 @@ export default function Passi({ navigation }: PassiProps) {
 
     // 🔥 FILTER STAMPS BY EVENT
     const filteredStamps = stamps.filter(
-        s => s.eventId === currentEventId
+        s => currentEventId ? s.eventId === currentEventId : false
     );
 
     const completed = filteredStamps.length;
@@ -164,6 +171,12 @@ export default function Passi({ navigation }: PassiProps) {
                         ? `Saavutettu: ${currentAchieved.name} 🎓`
                         : "Ei tutkintoa vielä"}
                 </Text>
+
+                {!isReady ? (
+                    <Text style={styles.emptyText}>Ladataan tapahtumaa...</Text>
+                ) : !selectedEventId ? (
+                    <Text style={styles.emptyText}>Valitse ensin tapahtuma kartan kautta tai tapahtumalistasta.</Text>
+                ) : null}
 
                 <View style={[styles.passCard, { width: PLACEHOLDER_WIDTH }]}>
                     <FlatList
@@ -281,6 +294,13 @@ const styles = StyleSheet.create({
 
     subProgress: {
         color: "#555",
+        fontSize: 14,
+        marginBottom: 16,
+        textAlign: "center",
+    },
+
+    emptyText: {
+        color: "#666",
         fontSize: 14,
         marginBottom: 16,
         textAlign: "center",

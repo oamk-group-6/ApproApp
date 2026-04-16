@@ -1,10 +1,11 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Map from "../screens/Map";
 import Passi from "../screens/Passi";
+import QRScanner from "../screens/QRScanner";
 
 export type MapStackParamList = {
-  MapMain: undefined
-  Passi: undefined
+  MapMain: { eventId?: string } | undefined;
+  Passi: { eventId?: string } | undefined;
   QRScanner: undefined;
 }
 
@@ -15,7 +16,7 @@ export default function MapStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MapMain" component={Map} />
       <Stack.Screen name="Passi" component={Passi} />
-      
+      <Stack.Screen name="QRScanner" component={QRScanner} />
     </Stack.Navigator>
   );
 }

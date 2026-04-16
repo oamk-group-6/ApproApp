@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../firebase/hooks/useAuth";
 import { getUserEvents } from "../firebase/services/eventService";
 import { RootStackParamList } from "../navigation/types/navigation";
+import { useEvent } from "../context/EventContext";
 
 
 type EventsProps = NativeStackScreenProps<RootStackParamList, 'Events'>
@@ -41,7 +42,7 @@ export default function Events({navigation}: EventsProps) {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
     const [joinCode, setJoinCode] = useState<string>("")
     const [joinedEvents, setJoinedEvents] = useState<string[]>([])
-
+    const { setEventId } = useEvent();
 
     useEffect(() => {
       const loadEvents = async () => {
@@ -101,7 +102,12 @@ export default function Events({navigation}: EventsProps) {
         setModalVisible(false)
         setJoinCode("")
 
-        navigation.navigate("Map", { eventId: selectedEvent.id })
+        setEventId(selectedEvent.id);
+
+        navigation.navigate("Map", {
+            screen: "MapMain",
+            params: { eventId: selectedEvent.id }
+        });
     }
 
     if (loading) {
@@ -111,20 +117,35 @@ export default function Events({navigation}: EventsProps) {
 
     const renderItem = ({ item }: { item: Event }) => (
         <View style={styles.item}>
-            <Text style={styles.title}>{item.title}</Text>
+            <View style={styles.eventInfo}>
+                <Text style={styles.title}>{item.title}</Text>
 
-            <Text style={styles.date}>
-                {item.date ? new Date(item.date).toLocaleDateString("fi-FI") : ""}
-            </Text>
+                <Text style={styles.date}>
+                    {item.date ? new Date(item.date).toLocaleDateString("fi-FI") : ""}
+                </Text>
+            </View>
 
-            <TouchableOpacity 
-                style={[globalStyles.button, isJoined(item.id) && {backgroundColor: "green"}, styles.button]}
-                disabled={isJoined(item.id)} 
-                onPress={() => openModal(item)}
-            >
-                
-                <Text style={globalStyles.buttonText}>{isJoined(item.id) ? "Liitytty" : "Liity"}</Text>
-            </TouchableOpacity>
+            {isJoined(item.id) ? (
+                <TouchableOpacity
+                    style={[globalStyles.button, styles.button]}
+                    onPress={() => {
+                        setEventId(item.id);
+                        navigation.navigate("Map", {
+                            screen: "MapMain",
+                            params: { eventId: item.id }
+                        });
+                    }}
+                >
+                    <Text style={globalStyles.buttonText}>Tarkastele</Text>
+                </TouchableOpacity>
+            ) : (
+                <TouchableOpacity 
+                    style={[globalStyles.button, styles.button]}
+                    onPress={() => openModal(item)}
+                >
+                    <Text style={globalStyles.buttonText}>Liity</Text>
+                </TouchableOpacity>
+            )}
         </View>
     )
 
@@ -215,6 +236,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 16,
         borderBottomWidth: 1
+    },
+    eventInfo: {
+        flex: 1,
+        marginRight: 12,
     },
     title: {
         fontSize: 20,
