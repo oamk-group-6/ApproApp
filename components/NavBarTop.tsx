@@ -1,10 +1,12 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Alert, View, Text, Pressable, StyleSheet } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { useEvent } from "../context/EventContext";
 
 export default function NavBarTop() {
   const navigation = useNavigation<any>();
-  const route = useRoute();
+  const route = useRoute<any>();
+  const { eventId, isReady } = useEvent();
 
   const isMap = route.name === "MapMain";
   const isPassi = route.name === "Passi";
@@ -15,7 +17,17 @@ export default function NavBarTop() {
       {/* MAP */}
       <Pressable
         style={[styles.tab, isMap && styles.activeTab]}
-        onPress={() => navigation.navigate("MapMain")}
+        onPress={() => {
+          if (!isReady) {
+            return;
+          }
+
+          if (!eventId) {
+            Alert.alert("Valitse tapahtuma ensin");
+            return;
+          }
+          navigation.navigate("MapMain", { eventId })
+        }}
       >
         <Text style={[styles.text, isMap && styles.activeText]}>
           Kartta
@@ -25,7 +37,18 @@ export default function NavBarTop() {
       {/* PASSI */}
       <Pressable
         style={[styles.tab, isPassi && styles.activeTab]}
-        onPress={() => navigation.navigate("Passi")}
+        onPress={() => {
+          if (!isReady) {
+            return;
+          }
+
+          if (!eventId) {
+            Alert.alert("Valitse tapahtuma ensin");
+            return;
+          }
+
+          navigation.navigate("Passi", { eventId })
+        }}
       >
         <Text style={[styles.text, isPassi && styles.activeText]}>
           Appropassi

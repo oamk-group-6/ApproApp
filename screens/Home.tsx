@@ -12,6 +12,7 @@ import { useAuth } from "../firebase/hooks/useAuth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { RootStackParamList } from "../navigation/types/navigation";
+import { useEvent } from "../context/EventContext";
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 
@@ -21,6 +22,7 @@ export default function Home({navigation}: HomeProps) {
     const [nextEvent, setNextEvent] = useState<Event | null>(null)
     const [modalVisible, setModalVisible] = useState<boolean>(false)
     const [joinCode, setJoinCode] = useState<string>("")
+    const { setEventId } = useEvent();
 
     useLayoutEffect(() => {
         navigation.setOptions({ 
@@ -71,7 +73,11 @@ export default function Home({navigation}: HomeProps) {
         setModalVisible(false)
         setJoinCode("")
 
-        navigation.navigate("Map", {eventId: nextEvent.id})
+        setEventId(nextEvent.id);
+        navigation.navigate("Map", {
+            screen: "MapMain",
+            params: { eventId: nextEvent.id }
+        });
     }
 
     if (loading) {
@@ -90,8 +96,13 @@ export default function Home({navigation}: HomeProps) {
                     </View>
 
                     <Image
-                        source={require("../assets/poster_placeholder.jpg")}
+                        source={
+                            nextEvent?.imageUrl
+                            ? { uri: nextEvent.imageUrl}
+                            : require("../assets/poster_placeholder.jpg")
+                        }
                         style={styles.image}
+                        resizeMode="contain"
                     />
                 
                     <TouchableOpacity style= {globalStyles.button} onPress={openModal}>
@@ -108,6 +119,15 @@ export default function Home({navigation}: HomeProps) {
                         <Text style={styles.modalTitle}>{nextEvent?.title}</Text>
 
                         <Text style={styles.modalDescription}>{nextEvent?.description}</Text>
+
+                        <Image
+                            source={
+                                nextEvent?.imageUrl
+                                ? { uri: nextEvent.imageUrl }
+                                : require("../assets/poster_placeholder.jpg")
+                            }
+                            style={styles.modalImage}
+                        />
 
                         <TextInput
                             placeholder="Avain"
@@ -159,11 +179,14 @@ const styles = StyleSheet.create({
         marginTop: 2
     },
     image: {
-        width: 300,
-        height: 500,
+        minWidth: 300,
+        minHeight: 450,
+        maxWidth: 350,
+        maxHeight: 550,
         margin: 12,
         marginBottom: 36,
-        marginTop: 36
+        marginTop: 36,
+        borderRadius: 10
     },
     modalOverlay: {
         flex: 1,
@@ -216,5 +239,11 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 16,
         textAlign: "left",
-    }
+    },
+    modalImage: {
+        height: 180,
+        width: "100%",
+        borderRadius: 10,
+        marginBottom: 10
+    },
 });

@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useLayoutEffect, useState } from "react";
+import { use, useLayoutEffect, useState } from "react";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
 import { Alert, Button, StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +7,12 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../navigation/types/navigation";
 import { globalStyles } from "../styles/global";
+import { doc, setDoc } from "firebase/firestore";
+import { db, auth } from "../firebase/firebaseConfig";
+import { useAuth } from '../firebase/hooks/useAuth';
+import { scanQrCode } from "../firebase/services/scanService";
+import { useEvent } from "../context/EventContext";
+
 
 type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
 
@@ -14,32 +20,52 @@ const { width } = Dimensions.get('window');
 const BOX_SIZE = width * 0.7;
 
 export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
-    /*
-        useLayoutEffect(() => {
-            navigation.setOptions({ 
-                headerStyle: { backgroundColor: 'lightblue' },
-                headerTitleStyle: { fontWeight: 'bold' },
-                title: 'Events',
-                headerRight: () => (
-                    <Ionicons 
-                        name="arrow-forward"
-                        size={24}
-                        color="black"
-                        style={{ marginRight: 15 }}
-                        onPress={() => navigation.navigate('Details')}
-                    />
-                ),
-            })
-        }, []);
-    */
+
+    const { user, loading } = useAuth();
+    const { eventId } = useEvent()
 
     const [permission, requestPermission] = useCameraPermissions()
     const [scanned, setScanned] = useState<boolean>(false)
 
-    const barcodeScanned = ({ data }: BarcodeScanningResult): void => {
+
+    const barcodeScanned = async ({ data }: BarcodeScanningResult) => {
+        if(scanned) return
+
         setScanned(true);
-        Alert.alert(`Skannaus onnistui!`, `QR: ${data}`)
-    }
+
+        if (!user) {
+            Alert.alert("Virhe", "Käyttäjä ei ole kirjautunut sisään");
+            return;
+        }
+
+        if (!eventId) {
+            Alert.alert("Virhe", "Ei valittua tapahtumaa");
+            return;
+        }
+
+        try {
+            const qrCodeId = data
+
+            console.log("SCANNED DATA:", qrCodeId);
+
+            if (!qrCodeId) {
+                Alert.alert("Virhe", "QR:stä puuttuu qrCodeId");
+                return;
+            }
+
+            const result = await scanQrCode(user.uid, qrCodeId, eventId)
+
+            if(result.success) {
+                Alert.alert("Leima lisätty! 🎉")
+            } else {
+                Alert.alert("Virhe", result.message)
+            }
+
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Virhe", "QR koodi ei ole valid");
+        }
+    };
 
     if (!permission) return <View />
 
@@ -56,6 +82,15 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             </View>
         );
     }
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Ladataan...</Text>
+            </View>
+        )
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <CameraView
@@ -66,6 +101,7 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
                     barcodeTypes: ['qr'],
                 }}
             />
+            
 
             <View style={StyleSheet.absoluteFill}>
                 <View style={styles.overlay} />
@@ -87,7 +123,10 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             </View>
 
             {scanned && <Button title={'Skannaa uudestaan'} onPress={() => setScanned(false)} />}
+
+
         </SafeAreaView>
+        
     )
 }
 

@@ -34,11 +34,11 @@ export default function NavBarBottom() {
         tabBarInactiveTintColor: "gray",
       })}
     >
-        <Tab.Screen name="Map" component={MapStack} /> 
-        <Tab.Screen name="Home" component={Home} /> 
-        <Tab.Screen name="Events" component={Events} />
-        <Tab.Screen name="OwnEvents" component={OwnEvents}/> 
-        <Tab.Screen name="UserPage" component={UserPage} />   
+        <Tab.Screen name="Map" component={MapStack} options={{tabBarLabel:'Kartta'}} /> 
+        <Tab.Screen name="Home" component={Home} options={{tabBarLabel:'Koti'}} /> 
+        <Tab.Screen name="Events" component={Events} options={{tabBarLabel:'Approt'}} />
+        <Tab.Screen name="OwnEvents" component={OwnEvents} options={{tabBarLabel:'Omat Approt'}} /> 
+        <Tab.Screen name="UserPage" component={UserPage} options={{tabBarLabel:'Käyttäjä'}} />   
       </Tab.Navigator>
     );
 }

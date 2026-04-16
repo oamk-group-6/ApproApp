@@ -1,9 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useState } from "react";
-import {StyleSheet, Text, View, TextInput, FlatList, Touchable, TouchableOpacity, Modal, Alert} from "react-native";
+import {StyleSheet, Text, View, TextInput, FlatList, Touchable, TouchableOpacity, Modal, Alert, Image} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import NavBarBottom from "../components/NavBarBottom";
 import { getAllEvents, joinEvent } from "../firebase/services/eventService";
 import { Event } from "../firebase/types/event";
 import { globalStyles } from "../styles/global"
@@ -11,6 +10,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../firebase/hooks/useAuth";
 import { getUserEvents } from "../firebase/services/eventService";
 import { RootStackParamList } from "../navigation/types/navigation";
+import { useEvent } from "../context/EventContext";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 
 type EventsProps = NativeStackScreenProps<RootStackParamList, 'Events'>
@@ -42,31 +44,27 @@ export default function Events({navigation}: EventsProps) {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
     const [joinCode, setJoinCode] = useState<string>("")
     const [joinedEvents, setJoinedEvents] = useState<string[]>([])
+    const { setEventId } = useEvent();
 
+    useFocusEffect(
+        useCallback(() => {
+            const loadData = async () => {
+                try {
+                    const eventsData = await getAllEvents();
+                    setEvents(eventsData);
 
-    useEffect(() => {
-      const loadEvents = async () => {
-        try {
-            const data = await getAllEvents()
-            setEvents(data)
-        } catch (error) {
-            console.error(error)
-        }
-      }
+                    if (user) {
+                        const ids = await getUserEvents(user.uid);
+                        setJoinedEvents(ids);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            };
 
-      loadEvents()    
-    }, [])
-
-    useEffect(() => {
-      const fetchJoinedEvents = async () => {
-        if (!user) return
-
-        const ids = await getUserEvents(user.uid)
-        setJoinedEvents(ids)
-      }
-
-      fetchJoinedEvents()
-    }, [user])
+            loadData();
+        }, [user])
+    );
     
     const isJoined = (eventId: string) => {
         return joinedEvents.includes(eventId)
@@ -102,7 +100,12 @@ export default function Events({navigation}: EventsProps) {
         setModalVisible(false)
         setJoinCode("")
 
-        navigation.navigate("Map", { eventId: selectedEvent.id })
+        setEventId(selectedEvent.id);
+
+        navigation.navigate("Map", {
+            screen: "MapMain",
+            params: { eventId: selectedEvent.id }
+        });
     }
 
     if (loading) {
@@ -112,20 +115,43 @@ export default function Events({navigation}: EventsProps) {
 
     const renderItem = ({ item }: { item: Event }) => (
         <View style={styles.item}>
-            <Text style={styles.title}>{item.title}</Text>
-            <TouchableOpacity 
-                style={[globalStyles.button, isJoined(item.id) && {backgroundColor: "green"}]}
-                disabled={isJoined(item.id)} 
-                onPress={() => openModal(item)}
-            >
-                
-                <Text style={globalStyles.buttonText}>{isJoined(item.id) ? "Liitytty" : "Liity"}</Text>
-            </TouchableOpacity>
+            <View style={styles.eventInfo}>
+                <Text style={styles.title}>{item.title}</Text>
+
+                <Text style={styles.date}>
+                    {item.date ? new Date(item.date).toLocaleDateString("fi-FI") : ""}
+                </Text>
+            </View>
+
+            {isJoined(item.id) ? (
+                <TouchableOpacity
+                    style={[globalStyles.button, styles.button]}
+                    onPress={() => {
+                        setEventId(item.id);
+                        navigation.navigate("Map", {
+                            screen: "MapMain",
+                            params: { eventId: item.id }
+                        });
+                    }}
+                >
+                    <Text style={globalStyles.buttonText}>Tarkastele</Text>
+                </TouchableOpacity>
+            ) : (
+                <TouchableOpacity 
+                    style={[globalStyles.button, styles.button]}
+                    onPress={() => openModal(item)}
+                >
+                    <Text style={globalStyles.buttonText}>Liity</Text>
+                </TouchableOpacity>
+            )}
         </View>
     )
 
     return (
         <SafeAreaView style={styles.container}>
+
+            <Text style={styles.headerTitle}>Tapahtumat</Text>
+
             <TextInput
                 placeholder="Hae tapahtumia"
                 value={search}
@@ -147,7 +173,20 @@ export default function Events({navigation}: EventsProps) {
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>{selectedEvent?.title}</Text>
 
+                        <Text style={styles.modalTitle}>
+                            {selectedEvent?.date ? new Date(selectedEvent?.date).toLocaleDateString("fi-FI") : ""}
+                        </Text>
+
                         <Text style={styles.modalDescription}>{selectedEvent?.description}</Text>
+
+                        <Image
+                            source={
+                                selectedEvent?.imageUrl
+                                ? { uri: selectedEvent.imageUrl }
+                                : require("../assets/poster_placeholder.jpg")
+                            }
+                            style={styles.modalImage}
+                        />
 
                         <TextInput 
                             placeholder="Avain"
@@ -196,8 +235,17 @@ const styles = StyleSheet.create({
         padding: 16,
         borderBottomWidth: 1
     },
+    eventInfo: {
+        flex: 1,
+        marginRight: 12,
+    },
     title: {
-        fontSize: 16
+        fontSize: 20,
+        fontWeight: "700"
+    },
+    date: {
+        fontSize: 16,
+        fontWeight: "500"
     },
     list: {
         width: "100%"
@@ -253,5 +301,20 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 16,
         textAlign: "left",
-    }
+    },
+    headerTitle: {
+      fontWeight: "bold",
+      fontSize: 24,
+      marginBottom: 24,
+      marginTop: 8
+    },
+    modalImage: {
+        height: 180,
+        width: "100%",
+        borderRadius: 10,
+        marginBottom: 10
+    },
+    button: {
+      width: 120
+    },
 });
