@@ -23,16 +23,37 @@ export const scanQrCode = async (userId: string, qrCodeId: string, eventId: stri
             };
         }
 
-        const scanId = `${userId}_${qrCodeId}`;
-        const scanRef = doc(db, "scans", scanId)
+        if (qrData.eventId !== eventId) {
+            return {
+                success: false,
+                message: "QR ei kuulu tähän tapahtumaan",
+            };
+        }
 
-        const stampRef = doc(db, "users", userId, "stamps", qrData.barId)
+        if (!qrData.barId) {
+            return {
+                success: false,
+                message: "QR missing barId",
+            };
+        }
+
+        const stampId = `${qrData.barId}_${eventId}`
+        const stampRef = doc(db, "users", userId, "stamps", stampId)
+
+        const scanId = `${userId}_${qrData.barId}_${eventId}`;
+        const scanRef = doc(db, "scans", scanId)
 
         await runTransaction(db, async (transaction) => {
             const scanSnap = await transaction.get(scanRef)
 
             if (scanSnap.exists()) {
                 throw new Error("QR code already scanned");
+            }
+
+            const stampSnap = await transaction.get(stampRef);
+
+            if (stampSnap.exists()) {
+                throw new Error("Leima jo olemassa tässä tapahtumassa");
             }
 
             const scanData: Omit<Scan, "scannedAt"> & { scannedAt: any } = {
@@ -47,7 +68,7 @@ export const scanQrCode = async (userId: string, qrCodeId: string, eventId: stri
 
             transaction.set(stampRef, {
                 barId: qrData.barId,
-                eventId: eventId || null,
+                eventId: eventId,
                 createdAt: serverTimestamp()
             })
         });
