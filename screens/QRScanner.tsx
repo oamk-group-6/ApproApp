@@ -67,8 +67,11 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             const barId = parsed.barId;
             const eventId = parsed.eventId; 
 
+
+
             //  lisää leima Firestoreen
             await addStamp(barId, eventId);
+
 
             Alert.alert("Leima lisätty! 🎉");
 
@@ -154,9 +157,9 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
                         data: JSON.stringify({
                             active: true,
                             barId: "873wxVW9NCcZ6GdaHkfa",
-                            eventId: "dev",
+                            eventId: "dev2",
                             codeValue: "baari67",
-                            createdAt: Date.now()
+                            createdAt: Date.now() 
                         })
                     } as any)
                 }

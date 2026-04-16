@@ -27,6 +27,13 @@ type Stamp = {
 };
 
 export default function Passi({ navigation, route }: PassiProps) {
+type Degree = {
+    name: string;
+    required: number;
+};
+
+export default function Passi({ navigation }: PassiProps) {
+
     const SCREEN_WIDTH = Dimensions.get("window").width;
     const PLACEHOLDER_WIDTH = SCREEN_WIDTH * 0.92;
 
@@ -38,39 +45,29 @@ export default function Passi({ navigation, route }: PassiProps) {
     const [logos, setLogos] = useState<Record<string, string>>({});
     const { eventId, isReady } = useEvent();
     const selectedEventId = route.params?.eventId ?? eventId;
+    const [degrees, setDegrees] = useState<Degree[]>([]);
 
-    const degrees = [
-        { name: "Fuksi", required: 8 },
-        { name: "Kandi", required: 10 },
-        { name: "Maisteri", required: 12 },
-        { name: "DI", required: 15 },
-        { name: "Professori", required: 18 },
-        { name: "Tohtori", required: 20 },
-    ];
+    // 🔥 STAMPS LISTENER
+    useEffect(() => {
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
 
-    // 🔥 FIRESTORE LISTENER
-useEffect(() => {
-    const userId = auth.currentUser?.uid;
-    if (!userId) return;
+        const stampsRef = collection(db, "users", userId, "stamps");
 
-    const stampsRef = collection(db, "users", userId, "stamps");
+        const unsub = onSnapshot(stampsRef, (snapshot) => {
+            const data: Stamp[] = snapshot.docs.map(doc => ({
+                barId: doc.data().barId,
+                createdAt: doc.data().createdAt,
+                eventId: doc.data().eventId,
+            }));
 
-    const unsub = onSnapshot(stampsRef, (snapshot) => {
-        const data: Stamp[] = snapshot.docs.map(doc => ({
-            barId: doc.data().barId,
-            createdAt: doc.data().createdAt,
-            eventId: doc.data().eventId,
-        }));
+            setStamps(data);
+        });
 
-        console.log("🔥 STAMPS FROM FIRESTORE:", data);
+        return unsub;
+    }, []);
 
-        setStamps(data);
-    });
-
-    return unsub;
-}, []);
-
-    // Baarin logo firestoresta
+    // 🔥 LOAD LOGOS
     useEffect(() => {
         const loadLogos = async () => {
             const map: Record<string, string> = {};
@@ -94,7 +91,32 @@ useEffect(() => {
 
     //  Current event (uusin stamp määrää eventin)
     const currentEventId = selectedEventId;
+    // 🔥 UUSIN EVENT STAMPEISTA (TÄRKEIN FIX)
+  /*
+    const currentEventId =
+        [...stamps]
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .find(s => s.eventId)
+            ?.eventId ?? null;
+  */
+    // 🔥 LOAD EVENT DEGREES
+    useEffect(() => {
+        const loadEvent = async () => {
+            if (!currentEventId) return;
 
+            const eventRef = doc(db, "events", currentEventId);
+            const snap = await getDoc(eventRef);
+
+            if (snap.exists()) {
+                const data = snap.data();
+                setDegrees(data.degrees || []);
+            }
+        };
+
+        loadEvent();
+    }, [currentEventId]);
+
+    // 🔥 FILTER STAMPS BY EVENT
     const filteredStamps = stamps.filter(
         s => currentEventId ? s.eventId === currentEventId : false
     );
@@ -109,7 +131,7 @@ useEffect(() => {
 
     const progressText = nextDegree
         ? `${nextDegree.name} ${completed}/${nextDegree.required}`
-        : `Tohtori ${completed}/${completed}`;
+        : `${currentAchieved?.name ?? "Valmis"} ${completed}/${completed}`;
 
     // 🔥 GRID
     const visibleStamps = filteredStamps.slice(0, MAX_STAMPS);
