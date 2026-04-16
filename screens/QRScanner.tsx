@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useLayoutEffect, useState } from "react";
+import { use, useLayoutEffect, useState } from "react";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
 import { Alert, Button, StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,8 @@ import { doc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
 import { useAuth } from '../firebase/hooks/useAuth';
 import { scanQrCode } from "../firebase/services/scanService";
+import { useEvent } from "../context/EventContext";
+
 
 type QRScannerProps = NativeStackScreenProps<RootStackParamList, 'QRScanner'>
 
@@ -20,64 +22,53 @@ const BOX_SIZE = width * 0.7;
 export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
 
     const { user, loading } = useAuth();
+    const { eventId } = useEvent()
 
     const [permission, requestPermission] = useCameraPermissions()
     const [scanned, setScanned] = useState<boolean>(false)
 
-    
-    const addStamp = async (barId: string, eventId?: string) => {
-        const uid = auth.currentUser?.uid;
-        if (!uid) return;
-
-        await setDoc(
-            doc(db, "users", uid, "stamps", barId),
-            {
-                barId,
-                eventId: eventId || null, // 🔥 FIX
-                createdAt: Date.now(),
-            }
-        );
-    };
 
     const barcodeScanned = async ({ data }: BarcodeScanningResult) => {
+        if(scanned) return
+
         setScanned(true);
 
-        try {
-            const parsed = JSON.parse(data);
-
-            console.log("SCANNED DATA:", parsed);
-
-            //  active check
-            if (!parsed.active) {
-                Alert.alert("Virhe", "QR ei ole aktiivinen");
-                return;
-            }
-
-            //  barId check
-            if (!parsed.barId) {
-                Alert.alert("Virhe", "QR:stä puuttuu barId");
-                return;
-            }
-          
-                  if (!user) {
-            Alert.alert("Virhe", "Käyttäjä ei ole kirjautunut sisään")
+        if (!user) {
+            Alert.alert("Virhe", "Käyttäjä ei ole kirjautunut sisään");
+            setScanned(false);
             return;
         }
 
-            const barId = parsed.barId;
-            const eventId = parsed.eventId; 
+        if (!eventId) {
+            Alert.alert("Virhe", "Ei valittua tapahtumaa");
+            setScanned(false);
+            return;
+        }
 
+        try {
+            const qrCodeId = data
 
+            console.log("SCANNED DATA:", qrCodeId);
 
-            //  lisää leima Firestoreen
-            await addStamp(barId, eventId);
+            if (!qrCodeId) {
+                Alert.alert("Virhe", "QR:stä puuttuu qrCodeId");
+                setScanned(false);
+                return;
+            }
 
+            const result = await scanQrCode(user.uid, qrCodeId, eventId)
 
-            Alert.alert("Leima lisätty! 🎉");
+            if(result.success) {
+                Alert.alert("Leima lisätty! 🎉")
+            } else {
+                Alert.alert("Virhe", result.message)
+                setScanned(false)
+            }
 
         } catch (error) {
             console.log(error);
-            Alert.alert("Virhe", "QR koodi ei ole validi");
+            Alert.alert("Virhe", "QR koodi ei ole validi frontendista");
+            setScanned(false)
         }
     };
 
@@ -139,35 +130,6 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
             {scanned && <Button title={'Skannaa uudestaan'} onPress={() => setScanned(false)} />}
 
 
-            // TESTI NAPPI (FEIKKI QR SCAN)
-            <TouchableOpacity
-                style={{
-                    position: "absolute",
-                    bottom: 120,
-                    alignSelf: "center",
-                    backgroundColor: "#F85F6A",
-                    paddingVertical: 12,
-                    paddingHorizontal: 20,
-                    borderRadius: 20,
-                    zIndex: 9999,
-                    elevation: 9999,
-                }}
-                onPress={() =>
-                    barcodeScanned({
-                        data: JSON.stringify({
-                            active: true,
-                            barId: "873wxVW9NCcZ6GdaHkfa",
-                            eventId: "dev2",
-                            codeValue: "baari67",
-                            createdAt: Date.now() 
-                        })
-                    } as any)
-                }
-            >
-                <Text style={{ color: "white", fontWeight: "700" }}>
-                    TEST SCAN
-                </Text>
-            </TouchableOpacity>
         </SafeAreaView>
         
     )

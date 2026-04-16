@@ -11,6 +11,8 @@ import { useAuth } from "../firebase/hooks/useAuth";
 import { getUserEvents } from "../firebase/services/eventService";
 import { RootStackParamList } from "../navigation/types/navigation";
 import { useEvent } from "../context/EventContext";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 
 type EventsProps = NativeStackScreenProps<RootStackParamList, 'Events'>
@@ -44,29 +46,25 @@ export default function Events({navigation}: EventsProps) {
     const [joinedEvents, setJoinedEvents] = useState<string[]>([])
     const { setEventId } = useEvent();
 
-    useEffect(() => {
-      const loadEvents = async () => {
-        try {
-            const data = await getAllEvents()
-            setEvents(data)
-        } catch (error) {
-            console.error(error)
-        }
-      }
+    useFocusEffect(
+        useCallback(() => {
+            const loadData = async () => {
+                try {
+                    const eventsData = await getAllEvents();
+                    setEvents(eventsData);
 
-      loadEvents()    
-    }, [])
+                    if (user) {
+                        const ids = await getUserEvents(user.uid);
+                        setJoinedEvents(ids);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            };
 
-    useEffect(() => {
-      const fetchJoinedEvents = async () => {
-        if (!user) return
-
-        const ids = await getUserEvents(user.uid)
-        setJoinedEvents(ids)
-      }
-
-      fetchJoinedEvents()
-    }, [user])
+            loadData();
+        }, [user])
+    );
     
     const isJoined = (eventId: string) => {
         return joinedEvents.includes(eventId)
