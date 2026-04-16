@@ -10,4 +10,5 @@ export type RootStackParamList = {
   UserPage: undefined
   MainTabs: undefined
   HomeScreen: undefined
+  Statistics: undefined
 };
