@@ -35,13 +35,11 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
 
         if (!user) {
             Alert.alert("Virhe", "Käyttäjä ei ole kirjautunut sisään");
-            setScanned(false);
             return;
         }
 
         if (!eventId) {
             Alert.alert("Virhe", "Ei valittua tapahtumaa");
-            setScanned(false);
             return;
         }
 
@@ -52,7 +50,6 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
 
             if (!qrCodeId) {
                 Alert.alert("Virhe", "QR:stä puuttuu qrCodeId");
-                setScanned(false);
                 return;
             }
 
@@ -62,13 +59,11 @@ export default function QRScanner(/*{ navigation }: QRScannerProps*/) {
                 Alert.alert("Leima lisätty! 🎉")
             } else {
                 Alert.alert("Virhe", result.message)
-                setScanned(false)
             }
 
         } catch (error) {
             console.log(error);
-            Alert.alert("Virhe", "QR koodi ei ole validi frontendista");
-            setScanned(false)
+            Alert.alert("Virhe", "QR koodi ei ole valid");
         }
     };
 
