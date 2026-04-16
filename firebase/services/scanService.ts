@@ -2,7 +2,7 @@ import {doc, getDoc, runTransaction, serverTimestamp } from "firebase/firestore"
 import { db } from "../firebaseConfig";
 import { Scan } from "../types/scan"
 
-export const scanQrCode = async (userId: string, qrCodeId: string): Promise<{ success: boolean; message: string}> => {
+export const scanQrCode = async (userId: string, qrCodeId: string, eventId: string): Promise<{ success: boolean; message: string}> => {
     try {
         const qrRef = doc(db, "qrcodes", qrCodeId);
         const qrSnap = await getDoc(qrRef);
@@ -26,6 +26,8 @@ export const scanQrCode = async (userId: string, qrCodeId: string): Promise<{ su
         const scanId = `${userId}_${qrCodeId}`;
         const scanRef = doc(db, "scans", scanId)
 
+        const stampRef = doc(db, "users", userId, "stamps", qrData.barId)
+
         await runTransaction(db, async (transaction) => {
             const scanSnap = await transaction.get(scanRef)
 
@@ -37,10 +39,17 @@ export const scanQrCode = async (userId: string, qrCodeId: string): Promise<{ su
                 userId,
                 qrId: qrCodeId,
                 barId: qrData.barId,
+                eventId: eventId,
                 scannedAt: serverTimestamp(),
             };
 
             transaction.set(scanRef, scanData);
+
+            transaction.set(stampRef, {
+                barId: qrData.barId,
+                eventId: eventId || null,
+                createdAt: serverTimestamp()
+            })
         });
 
         return {
