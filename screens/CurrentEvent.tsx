@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { Event } from "../firebase/types/event";
-import { getEventById } from "../firebase/services/eventService"; // ← your wrapper file
+import { getEventById } from "../firebase/services/eventService";
+import { getEventBars, EventBar } from "../firebase/services/eventService";
 import { useRoute } from "@react-navigation/native";
-
-const route = useRoute();
-const { eventId } = route.params as { eventId: string };
 
 interface Props {
   route: {
@@ -19,16 +17,25 @@ const CurrentScreen: React.FC<Props> = ({ route }) => {
   const { eventId } = route.params;
 
   const [event, setEvent] = useState<Event | null>(null);
+  const [bars, setBars] = useState<EventBar[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
-  // Load event by ID
+  // Load event
   useEffect(() => {
     const loadEvent = async () => {
       const data = await getEventById(eventId);
       setEvent(data);
     };
-
     loadEvent();
+  }, [eventId]);
+
+  // Load bars
+  useEffect(() => {
+    const loadBars = async () => {
+      const data = await getEventBars(eventId);
+      setBars(data);
+    };
+    loadBars();
   }, [eventId]);
 
   // Countdown timer
@@ -81,11 +88,21 @@ const CurrentScreen: React.FC<Props> = ({ route }) => {
         style={styles.image}
       />
 
-      {/* Location */}
-      <Text style={styles.sectionTitle}>Location</Text>
-      <View style={styles.locationBox}>
-        <Text style={styles.locationText}>{event.location}</Text>
-      </View>
+      {/* Bars */}
+      <Text style={styles.sectionTitle}>Bars</Text>
+
+      {bars.length === 0 ? (
+        <Text style={styles.noBars}>No bars selected for this event</Text>
+      ) : (
+        bars.map((bar) => (
+          <View key={bar.id} style={styles.locationBox}>
+            <Text style={styles.locationText}>{bar.name ?? "Unnamed bar"}</Text>
+            <Text style={styles.coords}>
+              {bar.location.latitude.toFixed(5)}, {bar.location.longitude.toFixed(5)}
+            </Text>
+          </View>
+        ))
+      )}
 
       {/* Description */}
       <Text style={styles.sectionTitle}>Description</Text>
@@ -113,8 +130,10 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "#f2f2f2",
     borderRadius: 8,
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  locationText: { fontSize: 18 },
+  locationText: { fontSize: 18, fontWeight: "600" },
+  coords: { fontSize: 14, color: "#666" },
+  noBars: { fontSize: 16, color: "#888", marginBottom: 10 },
   description: { fontSize: 16, color: "#444", marginTop: 5 },
 });
