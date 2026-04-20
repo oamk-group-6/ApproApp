@@ -17,6 +17,7 @@ import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
 import NavBarTop from "../components/NavBarTop";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEvent } from "../context/EventContext";
+import { InfoStackParamList } from "../navigation/InfoStack";
 
 type PassiProps = NativeStackScreenProps<MapStackParamList, 'Passi'>;
 
@@ -156,7 +157,7 @@ export default function Passi({ navigation, route }: PassiProps) {
                     <Text style={styles.title}>APPROPASSI</Text>
 
                     <TouchableOpacity
-                        onPress={() => setInfoVisible(true)}
+                        onPress={() => navigation.navigate("CurrentEvent", { eventId: currentEventId ?? undefined })}
                         style={styles.infoButton}
                     >
                         <Text style={styles.infoText}>i</Text>

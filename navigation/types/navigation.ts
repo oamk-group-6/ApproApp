@@ -14,4 +14,5 @@ export type RootStackParamList = {
   MainTabs: undefined
   HomeScreen: undefined
   Statistics: undefined
+  CurrentEvent: undefined
 };

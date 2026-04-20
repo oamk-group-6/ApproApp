@@ -4,6 +4,12 @@ import { Event } from "../firebase/types/event";
 import { getEventById } from "../firebase/services/eventService";
 import { getEventBars, EventBar } from "../firebase/services/eventService";
 import { useRoute } from "@react-navigation/native";
+import { MapStackParamList } from "../navigation/MapStack";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useEvent } from "../context/EventContext";
+
+type CurrentEventProps = NativeStackScreenProps<MapStackParamList, 'CurrentEvent'>;
+
 
 interface Props {
   route: {
@@ -13,30 +19,39 @@ interface Props {
   };
 }
 
-const CurrentScreen: React.FC<Props> = ({ route }) => {
-  const { eventId } = route.params;
+const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
+  const { eventId } = useEvent(); // eventId is string | null
+  const selectedEventId = route.params?.eventId ?? eventId ?? undefined;
+
 
   const [event, setEvent] = useState<Event | null>(null);
   const [bars, setBars] = useState<EventBar[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
-  // Load event
   useEffect(() => {
-    const loadEvent = async () => {
-      const data = await getEventById(eventId);
-      setEvent(data);
-    };
-    loadEvent();
-  }, [eventId]);
+  if (!eventId) return;
+
+  const loadEvent = async () => {
+    const data = await getEventById(eventId);
+    setEvent(data);
+  };
+
+  loadEvent();
+}, [eventId]);
+
 
   // Load bars
   useEffect(() => {
-    const loadBars = async () => {
-      const data = await getEventBars(eventId);
-      setBars(data);
-    };
-    loadBars();
-  }, [eventId]);
+  if (!eventId) return;
+
+  const loadBars = async () => {
+    const data = await getEventBars(eventId);
+    setBars(data);
+  };
+
+  loadBars();
+}, [eventId]);
+
 
   // Countdown timer
   useEffect(() => {
@@ -111,7 +126,7 @@ const CurrentScreen: React.FC<Props> = ({ route }) => {
   );
 };
 
-export default CurrentScreen;
+export default CurrentEvent;
 
 const styles = StyleSheet.create({
   container: { padding: 20, flex: 1, backgroundColor: "#fff" },
