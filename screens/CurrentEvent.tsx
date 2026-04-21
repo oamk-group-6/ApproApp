@@ -113,9 +113,15 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
 
         {/* Image */}
         <Image
-            source={{ uri: "https://placehold.co/600x300" }}
-            style={styles.image}
-        />
+    source={
+        event?.imageUrl
+            ? { uri: event.imageUrl }
+            : require("../assets/poster_placeholder.jpg")
+    }
+    style={styles.image}
+    resizeMode="contain"
+/>
+
 
         {/* Bars */}
         <Text style={styles.sectionTitle}>Bars</Text>
