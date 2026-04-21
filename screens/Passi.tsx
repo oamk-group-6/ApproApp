@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     },
 
     passCard: {
-        backgroundColor: "#F85F6A",
+        backgroundColor: "#F5F5F5",
         borderRadius: 20,
         padding: 12,
         shadowColor: "#000",

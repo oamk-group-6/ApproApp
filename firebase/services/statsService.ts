@@ -63,7 +63,6 @@ export const scansPerEvent = (
     const qrToEvent: Record<string, string> = {}
 
     qrcodes.forEach(qr => {
-        console.log("QR:", qr)
         qrToEvent[qr.id] = qr.eventId
     })
 
