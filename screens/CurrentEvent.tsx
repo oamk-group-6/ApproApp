@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity} from "react-native";
 import { Event } from "../firebase/types/event";
 import { getEventById } from "../firebase/services/eventService";
 import { getEventBars, EventBar } from "../firebase/services/eventService";
@@ -7,6 +7,9 @@ import { useRoute } from "@react-navigation/native";
 import { MapStackParamList } from "../navigation/MapStack";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEvent } from "../context/EventContext";
+import NavBarTop from "../components/NavBarTop";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 type CurrentEventProps = NativeStackScreenProps<MapStackParamList, 'CurrentEvent'>;
 
@@ -86,53 +89,48 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-  
-  {/* Back Button */}
-  <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-    <Text style={styles.backButtonText}>←</Text>
-  </TouchableOpacity>
+    <SafeAreaView style={styles.container} edges={["top"]}>
 
-  {/* Title + Date */}
-  <View style={{ flex: 1, marginLeft: 10 }}>
-    <Text style={styles.title}>{event.title}</Text>
-    <Text style={styles.date}>Date: {event.date}</Text>
-  </View>
+        <NavBarTop />
 
-  {/* Time Left */}
-  <Text style={styles.timeLeft}>{timeLeft}</Text>
-</View>
-    
+        {/* Event Header Section */}
+        <View style={styles.eventHeader}>
+            <View style={{ flex: 1 }}>
+                <Text style={styles.title}>{event.title}</Text>
+                <Text style={styles.date}>Date: {event.date}</Text>
+            </View>
 
-      {/* Image */}
-      <Image
-        source={{ uri: "https://placehold.co/600x300" }}
-        style={styles.image}
-      />
+            <Text style={styles.timeLeft}>{timeLeft}</Text>
+        </View>
 
-      {/* Bars */}
-      <Text style={styles.sectionTitle}>Bars</Text>
+        {/* Image */}
+        <Image
+            source={{ uri: "https://placehold.co/600x300" }}
+            style={styles.image}
+        />
 
-      {bars.length === 0 ? (
-        <Text style={styles.noBars}>No bars selected for this event</Text>
-      ) : (
-        bars.map((bar) => (
-          <View key={bar.id} style={styles.locationBox}>
-            <Text style={styles.locationText}>{bar.name ?? "Unnamed bar"}</Text>
-            <Text style={styles.coords}>
-              {bar.location.latitude.toFixed(5)}, {bar.location.longitude.toFixed(5)}
-            </Text>
-          </View>
-        ))
-      )}
+        {/* Bars */}
+        <Text style={styles.sectionTitle}>Bars</Text>
 
-      {/* Description */}
-      <Text style={styles.sectionTitle}>Description</Text>
-      <Text style={styles.description}>{event.description}</Text>
-    </View>
-  );
+        {bars.length === 0 ? (
+            <Text style={styles.noBars}>No bars selected for this event</Text>
+        ) : (
+            bars.map((bar) => (
+                <View key={bar.id} style={styles.locationBox}>
+                    <Text style={styles.locationText}>{bar.name ?? "Unnamed bar"}</Text>
+                    <Text style={styles.coords}>
+                        {bar.location.latitude.toFixed(5)}, {bar.location.longitude.toFixed(5)}
+                    </Text>
+                </View>
+            ))
+        )}
+
+        {/* Description */}
+        <Text style={styles.sectionTitle}>Description</Text>
+        <Text style={styles.description}>{event.description}</Text>
+
+    </SafeAreaView>
+);
 };
 
 export default CurrentEvent;
@@ -364,6 +362,15 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: "center",
     },
+    eventHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    marginBottom: 10,
+},
+
     backButton: {
     width: 32,
     height: 32,
