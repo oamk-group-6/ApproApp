@@ -66,7 +66,7 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
       const diff = eventDate.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setTimeLeft("Event is ongoing or ended");
+        setTimeLeft("Tapahtuma on loppunut");
         return;
       }
 
@@ -83,7 +83,7 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#000" />
-        <Text style={{ marginTop: 10 }}>Loading event...</Text>
+        <Text style={{ marginTop: 10 }}>Tapahtumaa ladataan...</Text>
       </View>
     );
   }
@@ -97,7 +97,7 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
                 onPress={() => navigation.goBack()}
                 style={styles.backButton}
             >
-                <Text style={styles.backButtonText}>←</Text>
+                <Text style={styles.backButtonText}>Takaisin</Text>
             </TouchableOpacity>
         </View>
 
@@ -127,14 +127,12 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
         <Text style={styles.sectionTitle}>Bars</Text>
 
         {bars.length === 0 ? (
-            <Text style={styles.noBars}>No bars selected for this event</Text>
+            <Text style={styles.noBars}>Baareja ei ole valittu tähän tapahtumaan</Text>
         ) : (
             bars.map((bar) => (
                 <View key={bar.id} style={styles.locationBox}>
                     <Text style={styles.locationText}>{bar.name ?? "Unnamed bar"}</Text>
-                    <Text style={styles.coords}>
-                        {bar.location.latitude.toFixed(5)}, {bar.location.longitude.toFixed(5)}
-                    </Text>
+                    <Text style={styles.coords}>{bar.address}</Text>
                 </View>
             ))
         )}

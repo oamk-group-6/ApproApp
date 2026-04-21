@@ -20,6 +20,7 @@ import { Event, CreateEvent } from "../types/event";
 export interface EventBar {
   id: string;
   name?: string;
+  address?: string;
   location: {
     latitude: number;
     longitude: number;
@@ -30,6 +31,7 @@ type RawBarData = {
   id?: string;
   barId?: string;
   name?: string;
+  address?: string;
   location?: {
     latitude?: number;
     longitude?: number;
