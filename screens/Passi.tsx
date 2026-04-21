@@ -155,10 +155,16 @@ export default function Passi({ navigation, route }: PassiProps) {
 
                 <View style={styles.headerRow}>
                     <Text style={styles.title}>APPROPASSI</Text>
-
                     <TouchableOpacity
                         onPress={() => navigation.navigate("CurrentEvent", { eventId: currentEventId ?? undefined })}
                         style={styles.infoButton}
+                    >
+                        <Text style={styles.infoText}>i</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => setInfoVisible(true)}
+                        style={[styles.infoButton, { marginLeft: 12 }]}
                     >
                         <Text style={styles.infoText}>i</Text>
                     </TouchableOpacity>
