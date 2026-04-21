@@ -152,12 +152,17 @@ export default function Passi({ navigation, route }: PassiProps) {
             <NavBarTop />
             <View style={styles.topRightButton}>
     <TouchableOpacity
-        onPress={() => navigation.navigate("CurrentEvent", { eventId: currentEventId ?? undefined })}
-        style={styles.infoButton}
+        onPress={() =>
+            navigation.navigate("CurrentEvent", {
+                eventId: currentEventId ?? undefined,
+            })
+        }
+        style={styles.eventInfoButton}
     >
-        <Text style={styles.infoText}>i</Text>
+        <Text style={styles.eventInfoText}>tapahtuman tiedot</Text>
     </TouchableOpacity>
 </View>
+
 
             <View style={styles.content}>
 
@@ -325,7 +330,7 @@ const styles = StyleSheet.create({
     },
     topRightButton: {
     position: "absolute",
-    top: 60,          // adjust depending on NavBarTop height
+    top: 120,          // adjust depending on NavBarTop height
     right: 20,
     zIndex: 20,
     },
@@ -397,6 +402,21 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginBottom: 6,
     },
+    eventInfoButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: "#000",   
+    borderRadius: 8,           
+    alignItems: "center",
+    justifyContent: "center",
+},
+
+eventInfoText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 12,
+    letterSpacing: 0.5,
+},
 
     closeButton: {
         marginTop: 16,
