@@ -99,22 +99,41 @@ export default function Passi({ navigation, route }: PassiProps) {
             .find(s => s.eventId)
             ?.eventId ?? null;
   */
-    // 🔥 LOAD EVENT DEGREES
-    useEffect(() => {
-        const loadEvent = async () => {
-            if (!currentEventId) return;
+// 🔥 LOAD EVENT DEGREES
+const PLACEHOLDER_DEGREES: Degree[] = [
+    { name: "Fuksi", required: 8 },
+    { name: "Kandi", required: 10 },
+    { name: "Maisteri", required: 12 },
+    { name: "DI", required: 15 },
+    { name: "Professori", required: 18 },
+    { name: "Tohtori", required: 20 },
+];
 
-            const eventRef = doc(db, "events", currentEventId);
-            const snap = await getDoc(eventRef);
+useEffect(() => {
+    const loadEvent = async () => {
+        if (!currentEventId) {
+            setDegrees(PLACEHOLDER_DEGREES);
+            return;
+        }
 
-            if (snap.exists()) {
-                const data = snap.data();
-                setDegrees(data.degrees || []);
-            }
-        };
+        const eventRef = doc(db, "events", currentEventId);
+        const snap = await getDoc(eventRef);
 
-        loadEvent();
-    }, [currentEventId]);
+        if (snap.exists()) {
+            const data = snap.data();
+            const fetchedDegrees = data.degrees;
+            setDegrees(
+                Array.isArray(fetchedDegrees) && fetchedDegrees.length > 0
+                    ? fetchedDegrees
+                    : PLACEHOLDER_DEGREES
+            );
+        } else {
+            setDegrees(PLACEHOLDER_DEGREES);
+        }
+    };
+
+    loadEvent();
+}, [currentEventId]);
 
     // 🔥 FILTER STAMPS BY EVENT
     const filteredStamps = stamps.filter(
@@ -320,7 +339,7 @@ const styles = StyleSheet.create({
     },
 
     passCard: {
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#F85F6A",
         borderRadius: 20,
         padding: 12,
         shadowColor: "#000",
