@@ -150,17 +150,19 @@ export default function Passi({ navigation, route }: PassiProps) {
         <SafeAreaView style={styles.container} edges={["top"]}>
 
             <NavBarTop />
+            <View style={styles.topRightButton}>
+    <TouchableOpacity
+        onPress={() => navigation.navigate("CurrentEvent", { eventId: currentEventId ?? undefined })}
+        style={styles.infoButton}
+    >
+        <Text style={styles.infoText}>i</Text>
+    </TouchableOpacity>
+</View>
 
             <View style={styles.content}>
 
                 <View style={styles.headerRow}>
                     <Text style={styles.title}>APPROPASSI</Text>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate("CurrentEvent", { eventId: currentEventId ?? undefined })}
-                        style={styles.infoButton}
-                    >
-                        <Text style={styles.infoText}>i</Text>
-                    </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => setInfoVisible(true)}
@@ -321,6 +323,13 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 5,
     },
+    topRightButton: {
+    position: "absolute",
+    top: 60,          // adjust depending on NavBarTop height
+    right: 20,
+    zIndex: 20,
+    },
+
 
     stampDone: {
         flex: 1 / 4,
