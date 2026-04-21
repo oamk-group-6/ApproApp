@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity} from "react-native";
+import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import { Event } from "../firebase/types/event";
 import { getEventById } from "../firebase/services/eventService";
 import { getEventBars, EventBar } from "../firebase/services/eventService";
@@ -32,28 +32,28 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
 
   useEffect(() => {
-  if (!eventId) return;
+    if (!eventId) return;
 
-  const loadEvent = async () => {
-    const data = await getEventById(eventId);
-    setEvent(data);
-  };
+    const loadEvent = async () => {
+      const data = await getEventById(eventId);
+      setEvent(data);
+    };
 
-  loadEvent();
-}, [eventId]);
+    loadEvent();
+  }, [eventId]);
 
 
   // Load bars
   useEffect(() => {
-  if (!eventId) return;
+    if (!eventId) return;
 
-  const loadBars = async () => {
-    const data = await getEventBars(eventId);
-    setBars(data);
-  };
+    const loadBars = async () => {
+      const data = await getEventBars(eventId);
+      setBars(data);
+    };
 
-  loadBars();
-}, [eventId]);
+    loadBars();
+  }, [eventId]);
 
 
   // Countdown timer
@@ -88,12 +88,20 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
     );
   }
 
-  return (
+ return (
     <SafeAreaView style={styles.container} edges={["top"]}>
 
-        <NavBarTop />
+        {/* Back Button inside safe area */}
+        <View style={styles.safeHeader}>
+            <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={styles.backButton}
+            >
+                <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
+        </View>
 
-        {/* Event Header Section */}
+        {/* Event Header */}
         <View style={styles.eventHeader}>
             <View style={{ flex: 1 }}>
                 <Text style={styles.title}>{event.title}</Text>
@@ -136,254 +144,260 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
 export default CurrentEvent;
 
 const styles = StyleSheet.create({
-    // Containers
-    container: {
-        flex: 1,
-        backgroundColor: "#FFFFFF",
-        padding: 20,
-    },
+  // Containers
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+  },
 
-    content: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 16,
-    },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+  },
 
-    loadingContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  safeHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+},
 
-    // Header
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 6,
-    },
+  // Header
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
 
-    headerRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 6,
-    },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
 
-    title: {
-        fontSize: 28,
-        fontWeight: "800",
-        color: "#000",
-        letterSpacing: 2,
-    },
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#000",
+    letterSpacing: 2,
+  },
 
-    date: {
-        fontSize: 16,
-        color: "#666",
-    },
+  date: {
+    fontSize: 16,
+    color: "#666",
+  },
 
-    timeLeft: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#F85F6A",
-    },
+  timeLeft: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#F85F6A",
+  },
 
-    // Info Button
-    infoButton: {
-        marginLeft: 10,
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        backgroundColor: "#F85F6A",
-        alignItems: "center",
-        justifyContent: "center",
-    },
+  // Info Button
+  infoButton: {
+    marginLeft: 10,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "#F85F6A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-    infoText: {
-        color: "#fff",
-        fontWeight: "800",
-    },
+  infoText: {
+    color: "#fff",
+    fontWeight: "800",
+  },
 
-    // Image
-    image: {
-        width: "100%",
-        height: 200,
-        borderRadius: 10,
-        marginVertical: 20,
-    },
+  // Image
+  image: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginVertical: 20,
+  },
 
-    // Section Titles
-    sectionTitle: {
-        fontSize: 22,
-        fontWeight: "bold",
-        marginTop: 10,
-        color: "#000",
-    },
+  // Section Titles
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginTop: 10,
+    color: "#000",
+  },
 
-    // Location Box
-    locationBox: {
-        padding: 12,
-        backgroundColor: "#F5F5F5",
-        borderRadius: 8,
-        marginBottom: 10,
-    },
+  // Location Box
+  locationBox: {
+    padding: 12,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 8,
+    marginBottom: 10,
+  },
 
-    locationText: {
-        fontSize: 18,
-        fontWeight: "600",
-        color: "#000",
-    },
+  locationText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#000",
+  },
 
-    coords: {
-        fontSize: 14,
-        color: "#666",
-    },
+  coords: {
+    fontSize: 14,
+    color: "#666",
+  },
 
-    noBars: {
-        fontSize: 16,
-        color: "#888",
-        marginBottom: 10,
-    },
+  noBars: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 10,
+  },
 
-    // Description
-    description: {
-        fontSize: 16,
-        color: "#444",
-        marginTop: 5,
-    },
+  // Description
+  description: {
+    fontSize: 16,
+    color: "#444",
+    marginTop: 5,
+  },
 
-    // Progress Text
-    progress: {
-        color: "#000",
-        fontSize: 18,
-        fontWeight: "600",
-        marginBottom: 4,
-        textAlign: "center",
-    },
+  // Progress Text
+  progress: {
+    color: "#000",
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 4,
+    textAlign: "center",
+  },
 
-    subProgress: {
-        color: "#555",
-        fontSize: 14,
-        marginBottom: 16,
-        textAlign: "center",
-    },
+  subProgress: {
+    color: "#555",
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: "center",
+  },
 
-    emptyText: {
-        color: "#666",
-        fontSize: 14,
-        marginBottom: 16,
-        textAlign: "center",
-    },
+  emptyText: {
+    color: "#666",
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: "center",
+  },
 
-    // Pass Card
-    passCard: {
-        backgroundColor: "#F5F5F5",
-        borderRadius: 20,
-        padding: 12,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
-    },
+  // Pass Card
+  passCard: {
+    backgroundColor: "#F5F5F5",
+    borderRadius: 20,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
 
-    stampDone: {
-        flex: 1 / 4,
-        aspectRatio: 1,
-        margin: 6,
-        borderRadius: 999,
-        backgroundColor: "#F85F6A",
-        alignItems: "center",
-        justifyContent: "center",
-    },
+  stampDone: {
+    flex: 1 / 4,
+    aspectRatio: 1,
+    margin: 6,
+    borderRadius: 999,
+    backgroundColor: "#F85F6A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-    stampPending: {
-        flex: 1 / 4,
-        aspectRatio: 1,
-        margin: 6,
-        borderRadius: 999,
-        backgroundColor: "#E0E0E0",
-        borderWidth: 2,
-        borderColor: "#CCC",
-    },
+  stampPending: {
+    flex: 1 / 4,
+    aspectRatio: 1,
+    margin: 6,
+    borderRadius: 999,
+    backgroundColor: "#E0E0E0",
+    borderWidth: 2,
+    borderColor: "#CCC",
+  },
 
-    logo: {
-        width: "70%",
-        height: "70%",
-    },
+  logo: {
+    width: "70%",
+    height: "70%",
+  },
 
-    // QR Button
-    qrButton: {
-        marginTop: 24,
-        backgroundColor: "#F85F6A",
-        paddingVertical: 14,
-        paddingHorizontal: 40,
-        borderRadius: 30,
-    },
+  // QR Button
+  qrButton: {
+    marginTop: 24,
+    backgroundColor: "#F85F6A",
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+  },
 
-    qrText: {
-        color: "#fff",
-        fontWeight: "700",
-        fontSize: 16,
-    },
+  qrText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+  },
 
-    // Modal
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: "rgba(0,0,0,0.4)",
-        justifyContent: "center",
-        alignItems: "center",
-    },
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
-    modalBox: {
-        width: "80%",
-        backgroundColor: "#FFFFFF",
-        padding: 20,
-        borderRadius: 16,
-    },
+  modalBox: {
+    width: "80%",
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 16,
+  },
 
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: "800",
-        color: "#000",
-        marginBottom: 12,
-        textAlign: "center",
-    },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#000",
+    marginBottom: 12,
+    textAlign: "center",
+  },
 
-    modalText: {
-        color: "#333",
-        fontSize: 14,
-        marginBottom: 6,
-    },
+  modalText: {
+    color: "#333",
+    fontSize: 14,
+    marginBottom: 6,
+  },
 
-    closeButton: {
-        marginTop: 16,
-        backgroundColor: "#F85F6A",
-        padding: 10,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    eventHeader: {
+  closeButton: {
+    marginTop: 16,
+    backgroundColor: "#F85F6A",
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  eventHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 10,
     marginBottom: 10,
-},
+  },
 
-    backButton: {
+  backButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
     backgroundColor: "#F85F6A",
     alignItems: "center",
     justifyContent: "center",
-},
+  },
 
-backButtonText: {
+  backButtonText: {
     color: "#fff",
     fontSize: 20,
     fontWeight: "800",
     marginTop: -2,
-}
+  }
 });
