@@ -99,3 +99,101 @@ export const getTopEvents = (data: any[], limit: number = 5) => {
         .sort((a, b) => b.count - a.count)
         .slice(0, limit)
 }
+
+const DEGREES = [
+    { name: "Fuksi", required: 8 },
+    { name: "Kandi", required: 10 },
+    { name: "Maisteri", required: 12 },
+    { name: "DI", required: 15 },
+    { name: "Professori", required: 18 },
+    { name: "Tohtori", required: 20 },
+];
+
+export const getDegreeCounts = async () => {
+    const scansSnap = await getDocs(collection(db, "scans"));
+    const scans = scansSnap.docs.map(d => d.data());
+
+    const degreeCounts: Record<string, number> = {};
+    DEGREES.forEach(d => (degreeCounts[d.name] = 0));
+
+    // userId -> eventId -> count
+    const userEventMap: Record<string, Record<string, number>> = {};
+
+    scans.forEach(scan => {
+        const userId = scan.userId;
+        const eventId = scan.eventId;
+
+        if (!userId || !eventId) return;
+
+        if (!userEventMap[userId]) {
+            userEventMap[userId] = {};
+        }
+
+        if (!userEventMap[userId][eventId]) {
+            userEventMap[userId][eventId] = 0;
+        }
+
+        userEventMap[userId][eventId]++;
+    });
+
+    // käydään läpi kaikki user-event -kombot
+    Object.values(userEventMap).forEach(eventMap => {
+        Object.values(eventMap).forEach(count => {
+            const degree = [...DEGREES]
+                .slice()
+                .reverse()
+                .find(d => count >= d.required);
+
+            if (degree) {
+                degreeCounts[degree.name]++;
+            }
+        });
+    });
+
+    return degreeCounts;
+};
+
+export const getCumulativeScansPerEventPerHour = async () => {
+    const scansSnap = await getDocs(collection(db, "scans"));
+    const scans = scansSnap.docs.map(d => d.data());
+
+    const raw: Record<string, Record<number, number>> = {};
+
+for (const scan of scans) {
+    const eventId = scan.eventId;
+    const timestamp = scan.scannedAt;
+
+    if (!eventId || !timestamp) continue;
+
+    const date = timestamp?.toDate?.();
+    if (!date) continue;
+
+    const hour = date.getHours();
+
+    if (hour < 10 || hour > 23) continue;
+
+    if (!raw[eventId]) {
+        raw[eventId] = {};
+        for (let h = 10; h <= 23; h++) {
+            raw[eventId][h] = 0;
+        }
+    }
+
+    raw[eventId][hour]++;
+}
+    // 2. cumulative transform
+    const result: Record<string, Record<number, number>> = {};
+
+    for (const [eventId, hours] of Object.entries(raw)) {
+        result[eventId] = {};
+
+        let runningTotal = 0;
+
+        for (let h = 10; h <= 23; h++) {
+            runningTotal += hours[h] || 0;
+            result[eventId][h] = runningTotal;
+        }
+    }
+
+    return result;
+};
