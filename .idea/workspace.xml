@@ -7,16 +7,6 @@
     <list default="true" id="b67cb77c-01db-4a85-b272-6504cc8b96cd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/NavBarTop.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/NavBarTop.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firebase/services/eventService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/firebase/services/eventService.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/navigation/MapStack.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/navigation/MapStack.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/navigation/types/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/navigation/types/navigation.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/Events.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/screens/Events.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/screens/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/Map.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/screens/Map.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/OwnEvents.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/screens/OwnEvents.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/Passi.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/screens/Passi.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

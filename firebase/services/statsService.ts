@@ -204,3 +204,37 @@ export const getCumulativeScansPerEventPerHour = async () => {
 
     return result;
 };
+
+
+
+export const getScansPerHourPerEvent = async () => {
+    const scansSnap = await getDocs(collection(db, "scans"));
+    const scans = scansSnap.docs.map(d => d.data());
+
+    const result: Record<string, Record<number, number>> = {};
+
+    for (const scan of scans) {
+        const eventId = scan.eventId;
+        const timestamp = scan.scannedAt;
+
+        if (!eventId || !timestamp) continue;
+
+        const date = timestamp?.toDate?.();
+        if (!date) continue;
+
+        const hour = date.getHours();
+
+        if (hour < 10 || hour > 23) continue;
+
+        if (!result[eventId]) {
+            result[eventId] = {};
+            for (let h = 10; h <= 23; h++) {
+                result[eventId][h] = 0;
+            }
+        }
+
+        result[eventId][hour]++;
+    }
+
+    return result;
+};
