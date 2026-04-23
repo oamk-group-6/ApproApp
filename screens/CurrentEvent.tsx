@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView } from "react-native";
 import { Event } from "../firebase/types/event";
 import { getEventById } from "../firebase/services/eventService";
 import { getEventBars, EventBar } from "../firebase/services/eventService";
@@ -91,16 +91,17 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
  return (
     <SafeAreaView style={styles.container} edges={["top"]}>
 
-        {/* Back Button inside safe area */}
-        <View style={styles.safeHeader}>
-            <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={styles.backButton}
-            >
-                <Text style={styles.backButtonText}>Takaisin</Text>
-            </TouchableOpacity>
-        </View>
+    {/* Back Button inside safe area */}
+    <View style={styles.safeHeader}>
+        <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+        >
+            <Text style={styles.backButtonText}>Takaisin</Text>
+        </TouchableOpacity>
+    </View>
 
+    <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Event Header */}
         <View style={styles.eventHeader}>
             <View style={{ flex: 1 }}>
@@ -113,15 +114,14 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
 
         {/* Image */}
         <Image
-    source={
-        event?.imageUrl
-            ? { uri: event.imageUrl }
-            : require("../assets/poster_placeholder.jpg")
-    }
-    style={styles.image}
-    resizeMode="contain"
-/>
-
+            source={
+                event?.imageUrl
+                    ? { uri: event.imageUrl }
+                    : require("../assets/poster_placeholder.jpg")
+            }
+            style={styles.image}
+            resizeMode="contain"
+        />
 
         {/* Bars */}
         <Text style={styles.sectionTitle}>Bars</Text>
@@ -140,8 +140,10 @@ const CurrentEvent: React.FC<CurrentEventProps> = ({ navigation, route }) => {
         {/* Description */}
         <Text style={styles.sectionTitle}>Description</Text>
         <Text style={styles.description}>{event.description}</Text>
+    </ScrollView>
 
-    </SafeAreaView>
+</SafeAreaView>
+
 );
 };
 
@@ -390,18 +392,24 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     backgroundColor: "#F85F6A",
+    borderRadius: 6,   // small rounding, not a circle
     alignItems: "center",
     justifyContent: "center",
-  },
+},
+
 
   backButtonText: {
     color: "#fff",
     fontSize: 20,
     fontWeight: "800",
     marginTop: -2,
-  }
+  },
+  
+  scrollContent: {
+    paddingBottom: 40,
+}
+
 });
