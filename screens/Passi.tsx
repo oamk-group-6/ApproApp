@@ -169,19 +169,6 @@ useEffect(() => {
         <SafeAreaView style={styles.container} edges={["top"]}>
 
             <NavBarTop />
-            <View style={styles.topRightButton}>
-    <TouchableOpacity
-        onPress={() =>
-            navigation.navigate("CurrentEvent", {
-                eventId: currentEventId ?? undefined,
-            })
-        }
-        style={styles.eventInfoButton}
-    >
-        <Text style={styles.eventInfoText}>tapahtuman tiedot</Text>
-    </TouchableOpacity>
-</View>
-
 
             <View style={styles.content}>
 
