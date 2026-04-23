@@ -177,8 +177,9 @@ export default function Statistics({ navigation }: StatisticsProps) {
                     <BarChart
                         data={eventChartData}
                         width={screenWidth}
-                        height={220}
+                        height={360}
                         fromZero
+                        verticalLabelRotation={40}
                         chartConfig={{
                             backgroundColor: '#ffffff',
                             backgroundGradientFrom: '#ffffff',
