@@ -12,6 +12,7 @@ import {
     mapEventNames,
     getTopEvents,
     getCumulativeScansPerEventPerHour,
+    getScansPerHourPerEvent,
     getDegreeCounts
 } from "../firebase/services/statsService";
 
@@ -55,7 +56,7 @@ export default function Statistics({ navigation }: StatisticsProps) {
                 })
 
                 // Hourly per event
-                const hourData = await getCumulativeScansPerEventPerHour()
+                const hourData = await getScansPerHourPerEvent()
                 const hours = Array.from({ length: 14 }, (_, i) => i + 10)
 
                 const list = Object.entries(hourData).map(([eventId, hourMap]) => {
