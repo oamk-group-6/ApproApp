@@ -101,12 +101,12 @@ export default function Passi({ navigation, route }: PassiProps) {
   */
 // 🔥 LOAD EVENT DEGREES
 const PLACEHOLDER_DEGREES: Degree[] = [
-    { name: "Fuksi", required: 8 },
-    { name: "Kandi", required: 10 },
-    { name: "Maisteri", required: 12 },
-    { name: "DI", required: 15 },
-    { name: "Professori", required: 18 },
-    { name: "Tohtori", required: 20 },
+    { name: "Fuksi", required: 1 },
+    { name: "Kandi", required: 2 },
+    { name: "Maisteri", required: 3 },
+    { name: "DI", required: 4 },
+    { name: "Professori", required: 5 },
+    { name: "Tohtori", required: 6 },
 ];
 
 useEffect(() => {
