@@ -15,7 +15,8 @@ import {
     getDegreeCounts
 } from "../firebase/services/statsService";
 
-import { BarChart, LineChart } from 'react-native-chart-kit';
+import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type StatisticsProps = NativeStackScreenProps<RootStackParamList, 'Statistics'>
 
@@ -86,7 +87,7 @@ export default function Statistics({ navigation }: StatisticsProps) {
 
     if (loading) {
         return (
-            <View style={styles.container}>
+            <View style={styles.loading}>
                 <Text>Ladataan...</Text>
             </View>
         )
@@ -95,45 +96,67 @@ export default function Statistics({ navigation }: StatisticsProps) {
     const currentEvent = eventHourlyList[selectedEventIndex]
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <SafeAreaView>
+            <ScrollView contentContainerStyle={styles.container}>
 
-            <Text style={styles.text}>Tilastot</Text>
+                <Text style={styles.text}>Tilastot</Text>
 
-            {/* Hourly per event */}
-            <Text style={styles.sectionTitle}>Skannaukset tunneittain per tapahtuma</Text>
+                {/* Hourly per event */}
+                <Text style={styles.sectionTitle}>Skannaukset tunneittain per tapahtuma</Text>
 
-            {eventHourlyList.length > 0 && (
-                <>
-                    <View style={styles.eventSelector}>
-                        <TouchableOpacity
-                            onPress={() => setSelectedEventIndex(i => Math.max(0, i - 1))}
-                            disabled={selectedEventIndex === 0}
-                        >
-                            <Text style={[styles.arrow, selectedEventIndex === 0 && styles.arrowDisabled]}>←</Text>
-                        </TouchableOpacity>
+                {eventHourlyList.length > 0 && (
+                    <>
+                        <View style={styles.eventSelector}>
+                            <TouchableOpacity
+                                onPress={() => setSelectedEventIndex(i => Math.max(0, i - 1))}
+                                disabled={selectedEventIndex === 0}
+                            >
+                                <Text style={[styles.arrow, selectedEventIndex === 0 && styles.arrowDisabled]}>←</Text>
+                            </TouchableOpacity>
 
-                        <Text style={styles.eventName} numberOfLines={1}>
-                            {currentEvent.name}
+                            <Text style={styles.eventName} numberOfLines={1}>
+                                {currentEvent.name}
+                            </Text>
+
+                            <TouchableOpacity
+                                onPress={() => setSelectedEventIndex(i => Math.min(eventHourlyList.length - 1, i + 1))}
+                                disabled={selectedEventIndex === eventHourlyList.length - 1}
+                            >
+                                <Text style={[styles.arrow, selectedEventIndex === eventHourlyList.length - 1 && styles.arrowDisabled]}>→</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <Text style={styles.eventCounter}>
+                            {selectedEventIndex + 1} / {eventHourlyList.length}
                         </Text>
 
-                        <TouchableOpacity
-                            onPress={() => setSelectedEventIndex(i => Math.min(eventHourlyList.length - 1, i + 1))}
-                            disabled={selectedEventIndex === eventHourlyList.length - 1}
-                        >
-                            <Text style={[styles.arrow, selectedEventIndex === eventHourlyList.length - 1 && styles.arrowDisabled]}>→</Text>
-                        </TouchableOpacity>
-                    </View>
+                        <LineChart
+                            data={currentEvent.chartData}
+                            width={screenWidth}
+                            height={220}
+                            fromZero
+                            bezier
+                            chartConfig={{
+                                backgroundColor: '#ffffff',
+                                backgroundGradientFrom: '#ffffff',
+                                backgroundGradientTo: '#ffffff',
+                                decimalPlaces: 0,
+                                color: (opacity = 1) => `rgba(248, 95, 106, ${opacity})`,
+                                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                            }}
+                            style={{ marginBottom: 20 }}
+                        />
+                    </>
+                )}
 
-                    <Text style={styles.eventCounter}>
-                        {selectedEventIndex + 1} / {eventHourlyList.length}
-                    </Text>
-
-                    <LineChart
-                        data={currentEvent.chartData}
+                {/* Bar chart */}
+                <Text style={styles.sectionTitle}>Skannaukset per baari</Text>
+                {barChartData && (
+                    <BarChart
+                        data={barChartData}
                         width={screenWidth}
                         height={220}
                         fromZero
-                        bezier
                         chartConfig={{
                             backgroundColor: '#ffffff',
                             backgroundGradientFrom: '#ffffff',
@@ -142,85 +165,72 @@ export default function Statistics({ navigation }: StatisticsProps) {
                             color: (opacity = 1) => `rgba(248, 95, 106, ${opacity})`,
                             labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                         }}
-                        style={{ marginBottom: 20 }}
+                        yAxisLabel=""
+                        yAxisSuffix=""
                     />
-                </>
-            )}
+                )}
 
-            {/* Bar chart */}
-            <Text style={styles.sectionTitle}>Skannaukset per baari</Text>
-            {barChartData && (
-                <BarChart
-                    data={barChartData}
-                    width={screenWidth}
-                    height={220}
-                    fromZero
-                    chartConfig={{
-                        backgroundColor: '#ffffff',
-                        backgroundGradientFrom: '#ffffff',
-                        backgroundGradientTo: '#ffffff',
-                        decimalPlaces: 0,
-                        color: (opacity = 1) => `rgba(248, 95, 106, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    }}
-                    yAxisLabel=""
-                    yAxisSuffix=""
-                />
-            )}
+                {/* Events chart */}
+                <Text style={styles.sectionTitle}>Skannaukset per tapahtuma (Top 5)</Text>
+                {eventChartData && (
+                    <BarChart
+                        data={eventChartData}
+                        width={screenWidth}
+                        height={220}
+                        fromZero
+                        chartConfig={{
+                            backgroundColor: '#ffffff',
+                            backgroundGradientFrom: '#ffffff',
+                            backgroundGradientTo: '#ffffff',
+                            decimalPlaces: 0,
+                            color: (opacity = 1) => `rgba(248, 95, 106, ${opacity})`,
+                            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                        }}
+                        yAxisLabel=""
+                        yAxisSuffix=""
+                    />
+                )}
 
-            {/* Events chart */}
-            <Text style={styles.sectionTitle}>Skannaukset per tapahtuma (Top 5)</Text>
-            {eventChartData && (
-                <BarChart
-                    data={eventChartData}
-                    width={screenWidth}
-                    height={220}
-                    fromZero
-                    chartConfig={{
-                        backgroundColor: '#ffffff',
-                        backgroundGradientFrom: '#ffffff',
-                        backgroundGradientTo: '#ffffff',
-                        decimalPlaces: 0,
-                        color: (opacity = 1) => `rgba(248, 95, 106, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    }}
-                    yAxisLabel=""
-                    yAxisSuffix=""
-                />
-            )}
+                {/* Degrees */}
+                <Text style={styles.sectionTitle}>Suoritetut tutkinnot (%)</Text>
 
-            {/* Degrees */}
-            <Text style={styles.sectionTitle}>Suoritetut tutkinnot</Text>
-            {degreeCounts && (
-                <BarChart
-                    data={{
-                        labels: Object.keys(degreeCounts),
-                        datasets: [{ data: Object.values(degreeCounts) }],
-                    }}
-                    width={screenWidth}
-                    height={220}
-                    fromZero
-                    chartConfig={{
-                        backgroundColor: '#ffffff',
-                        backgroundGradientFrom: '#ffffff',
-                        backgroundGradientTo: '#ffffff',
-                        decimalPlaces: 0,
-                        color: (opacity = 1) => `rgba(248, 95, 106, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    }}
-                    yAxisLabel=""
-                    yAxisSuffix=""
-                />
-            )}
+                {degreeCounts && (
+                    <PieChart
+                        data={Object.entries(degreeCounts).map(([name, value], index) => ({
+                            name,
+                            population: value,
+                            color: [
+                                "#FF6384",
+                                "#36A2EB",
+                                "#FFCE56",
+                                "#4BC0C0",
+                                "#9966FF",
+                                "#FF9F40",
+                            ][index % 6],
+                            legendFontColor: "#000",
+                            legendFontSize: 12,
+                        }))}
+                        width={screenWidth}
+                        height={220}
+                        chartConfig={{
+                            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                        }}
+                        accessor="population"
+                        backgroundColor="transparent"
+                        paddingLeft="15"
+                        absolute={false}
+                    />
+                )}
 
-            <TouchableOpacity
-                style={[globalStyles.button, styles.button]}
-                onPress={() => navigation.goBack()}
-            >
-                <Text style={globalStyles.buttonText}>Takaisin</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                    style={[globalStyles.button, styles.button]}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Text style={globalStyles.buttonText}>Takaisin</Text>
+                </TouchableOpacity>
 
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     )
 }
 
@@ -266,5 +276,10 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: 'gray',
         marginBottom: 8,
+    },
+    loading: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
     },
 }) 

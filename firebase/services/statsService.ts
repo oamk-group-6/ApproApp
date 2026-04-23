@@ -101,12 +101,12 @@ export const getTopEvents = (data: any[], limit: number = 5) => {
 }
 
 const DEGREES = [
-    { name: "Fuksi", required: 8 },
-    { name: "Kandi", required: 10 },
-    { name: "Maisteri", required: 12 },
-    { name: "DI", required: 15 },
-    { name: "Professori", required: 18 },
-    { name: "Tohtori", required: 20 },
+    { name: "Fuksi", required: 1 },
+    { name: "Kandi", required: 2 },
+    { name: "Maisteri", required: 3 },
+    { name: "DI", required: 4 },
+    { name: "Professori", required: 5 },
+    { name: "Tohtori", required: 6 },
 ];
 
 export const getDegreeCounts = async () => {
@@ -149,8 +149,15 @@ export const getDegreeCounts = async () => {
             }
         });
     });
+    const total = Object.values(degreeCounts).reduce((a, b) => a + b, 0);
 
-    return degreeCounts;
+    const degreePercentages: Record<string, number> = {};
+
+    Object.entries(degreeCounts).forEach(([key, value]) => {
+        degreePercentages[key] = total === 0 ? 0 : (value / total) * 100;
+    });
+
+    return degreePercentages;
 };
 
 export const getCumulativeScansPerEventPerHour = async () => {
@@ -159,28 +166,28 @@ export const getCumulativeScansPerEventPerHour = async () => {
 
     const raw: Record<string, Record<number, number>> = {};
 
-for (const scan of scans) {
-    const eventId = scan.eventId;
-    const timestamp = scan.scannedAt;
+    for (const scan of scans) {
+        const eventId = scan.eventId;
+        const timestamp = scan.scannedAt;
 
-    if (!eventId || !timestamp) continue;
+        if (!eventId || !timestamp) continue;
 
-    const date = timestamp?.toDate?.();
-    if (!date) continue;
+        const date = timestamp?.toDate?.();
+        if (!date) continue;
 
-    const hour = date.getHours();
+        const hour = date.getHours();
 
-    if (hour < 10 || hour > 23) continue;
+        if (hour < 10 || hour > 23) continue;
 
-    if (!raw[eventId]) {
-        raw[eventId] = {};
-        for (let h = 10; h <= 23; h++) {
-            raw[eventId][h] = 0;
+        if (!raw[eventId]) {
+            raw[eventId] = {};
+            for (let h = 10; h <= 23; h++) {
+                raw[eventId][h] = 0;
+            }
         }
-    }
 
-    raw[eventId][hour]++;
-}
+        raw[eventId][hour]++;
+    }
     // 2. cumulative transform
     const result: Record<string, Record<number, number>> = {};
 
