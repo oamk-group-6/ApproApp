@@ -222,7 +222,7 @@ export const getScansPerHourPerEvent = async () => {
         const date = timestamp?.toDate?.();
         if (!date) continue;
 
-        const hour = date.getHours();
+        const hour = date.getUTCHours() + 2;
 
         if (hour < 10 || hour > 23) continue;
 

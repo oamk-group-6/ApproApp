@@ -136,7 +136,7 @@ export default function Statistics({ navigation }: StatisticsProps) {
                             width={screenWidth}
                             height={220}
                             fromZero
-                            bezier
+                            //bezier
                             chartConfig={{
                                 backgroundColor: '#ffffff',
                                 backgroundGradientFrom: '#ffffff',
