@@ -349,10 +349,11 @@ const styles = StyleSheet.create({
     },
     topRightButton: {
     position: "absolute",
-    top: 120,          // adjust depending on NavBarTop height
-    right: 20,
-    zIndex: 20,
-    },
+    top: "10%",     // scales with screen height
+    right: "5%",    // scales with screen width
+    zIndex: 999,
+},
+
 
 
     stampDone: {
