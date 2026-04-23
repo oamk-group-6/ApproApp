@@ -49,9 +49,9 @@ export default function Passi({ navigation, route }: PassiProps) {
 
     // 🔥 STAMPS LISTENER
     useEffect(() => {
-        const userId = auth.currentUser?.uid;
-        if (!userId) return;
-
+        const userId = auth.currentUser?.uid; 
+        if (!userId) return; 
+  
         const stampsRef = collection(db, "users", userId, "stamps");
 
         const unsub = onSnapshot(stampsRef, (snapshot) => {
@@ -99,7 +99,7 @@ export default function Passi({ navigation, route }: PassiProps) {
             .find(s => s.eventId)
             ?.eventId ?? null;
   */
-// 🔥 LOAD EVENT DEGREES
+//     Eventille voi määrittää tutkinnot firestoreen, tai muuten se käyttää näitä
 const PLACEHOLDER_DEGREES: Degree[] = [
     { name: "Fuksi", required: 8 },
     { name: "Kandi", required: 10 },
@@ -109,7 +109,7 @@ const PLACEHOLDER_DEGREES: Degree[] = [
     { name: "Tohtori", required: 20 },
 ];
 
-useEffect(() => {
+useEffect(() => {  
     const loadEvent = async () => {
         if (!currentEventId) {
             setDegrees(PLACEHOLDER_DEGREES);
@@ -156,7 +156,7 @@ useEffect(() => {
     const visibleStamps = filteredStamps.slice(0, MAX_STAMPS);
 
     const slots = Array.from({ length: MAX_STAMPS }, (_, i) => {
-        const stamp = visibleStamps[i];
+        const stamp = visibleStamps[i];  
 
         return {
             id: i.toString(),
@@ -215,25 +215,29 @@ useEffect(() => {
                         data={slots}
                         keyExtractor={(item) => item.id}
                         numColumns={NUM_PER_ROW}
-                        renderItem={({ item }) => {
-                            if (item.done) {
-                                return (
-                                    <View style={styles.stampDone}>
-                                        <Image
-                                            source={
-                                                item.barId && logos[item.barId]
-                                                    ? { uri: logos[item.barId] }
-                                                    : require("../assets/ilona.png")
-                                            }
-                                            style={styles.logo}
-                                            resizeMode="contain"
-                                        />
-                                    </View>
-                                );
-                            }
+renderItem={({ item }) => {
+    const logoUri = item.barId ? logos[item.barId] : null;
 
-                            return <View style={styles.stampPending} />;
-                        }}
+    if (item.done) {
+        return (
+            <View style={styles.stampDone}>
+                <Image
+                    source={
+                        logoUri && logoUri.startsWith("http")
+                            ? { uri: logoUri }
+                            : require("../assets/icon.png")
+                        }
+                    style={styles.logo}
+                    resizeMode="contain"
+                    onLoad={() => console.log("Kuva latautui:", item.barId, logoUri)}
+                    onError={(e) => console.log("Kuva epäonnistui:", item.barId, logoUri, e.nativeEvent.error)}
+                />
+            </View>
+        );
+    }
+
+    return <View style={styles.stampPending} />;
+}}
                     />
                 </View>
 
